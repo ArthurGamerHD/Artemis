@@ -11,6 +11,8 @@ using Artemis.UI.Exceptions;
 using Artemis.UI.Services.Interfaces;
 using Artemis.UI.Shared;
 using Artemis.UI.Shared.Services;
+using Artemis.WebClient.Workshop.Models;
+using Artemis.WebClient.Workshop.Services;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Material.Icons;
@@ -22,21 +24,25 @@ namespace Artemis.UI.Screens.Plugins;
 public partial class PluginViewModel : ActivatableViewModelBase
 {
     private readonly IPluginInteractionService _pluginInteractionService;
+    private readonly IWorkshopService _workshopService;
     private readonly IWindowService _windowService;
     private Window? _settingsWindow;
     [Notify] private bool _canInstallPrerequisites;
     [Notify] private bool _canRemovePrerequisites;
     [Notify] private bool _enabling;
+    [Notify] private InstalledEntry? _workshopEntry;
 
     public PluginInfo PluginInfo { get; }
     public Plugin? Plugin { get; }
 
-    public PluginViewModel(PluginInfo pluginInfo, ReactiveCommand<Unit, Unit>? reload, IWindowService windowService, IPluginInteractionService pluginInteractionService)
+    public PluginViewModel(PluginInfo pluginInfo, ReactiveCommand<Unit, Unit>? reload, IWindowService windowService, IPluginInteractionService pluginInteractionService,
+        IWorkshopService workshopService)
     {
         PluginInfo = pluginInfo;
         Plugin = pluginInfo?.Plugin;
         _windowService = windowService;
         _pluginInteractionService = pluginInteractionService;
+        _workshopService = workshopService;
 
         Platforms = [];
         if (PluginInfo.Platforms != null)
@@ -51,12 +57,8 @@ public partial class PluginViewModel : ActivatableViewModelBase
 
         Reload = reload;
         OpenSettings = ReactiveCommand.Create(ExecuteOpenSettings, this.WhenAnyValue(vm => vm.IsEnabled, e => e && Plugin?.ConfigurationDialog != null));
-        RemoveSettings = ReactiveCommand.CreateFromTask(ExecuteRemoveSettings);
-        Remove = ReactiveCommand.CreateFromTask(ExecuteRemove);
         InstallPrerequisites = ReactiveCommand.CreateFromTask(ExecuteInstallPrerequisites, this.WhenAnyValue(x => x.CanInstallPrerequisites));
         RemovePrerequisites = ReactiveCommand.CreateFromTask<bool>(ExecuteRemovePrerequisites, this.WhenAnyValue(x => x.CanRemovePrerequisites));
-        ShowLogsFolder = ReactiveCommand.Create(ExecuteShowLogsFolder);
-        OpenPluginDirectory = ReactiveCommand.Create(ExecuteOpenPluginDirectory);
 
         this.WhenActivated(d =>
         {
@@ -65,6 +67,7 @@ public partial class PluginViewModel : ActivatableViewModelBase
 
             Plugin.Enabled += OnPluginToggled;
             Plugin.Disabled += OnPluginToggled;
+            WorkshopEntry = _workshopService.GetInstalledEntryByPlugin(Plugin);
 
             Disposable.Create(() =>
             {
@@ -77,12 +80,8 @@ public partial class PluginViewModel : ActivatableViewModelBase
 
     public ReactiveCommand<Unit, Unit>? Reload { get; }
     public ReactiveCommand<Unit, Unit> OpenSettings { get; }
-    public ReactiveCommand<Unit, Unit> RemoveSettings { get; }
-    public ReactiveCommand<Unit, Unit> Remove { get; }
     public ReactiveCommand<Unit, Unit> InstallPrerequisites { get; }
     public ReactiveCommand<bool, Unit> RemovePrerequisites { get; }
-    public ReactiveCommand<Unit, Unit> ShowLogsFolder { get; }
-    public ReactiveCommand<Unit, Unit> OpenPluginDirectory { get; }
 
     public ObservableCollection<PluginPlatformViewModel> Platforms { get; }
     public bool IsEnabled => Plugin != null && Plugin.IsEnabled;
@@ -121,6 +120,68 @@ public partial class PluginViewModel : ActivatableViewModelBase
         });
     }
 
+    public void OpenPluginDirectory()
+    {
+        try
+        {
+            if (Plugin != null)
+                Utilities.OpenFolder(Plugin.Directory.FullName);
+        }
+        catch (Exception e)
+        {
+            _windowService.ShowExceptionDialog("Welp, we couldn't open the device's plugin folder for you", e);
+        }
+    }
+
+    public async Task RemoveSettings()
+    {
+        if (Plugin == null)
+            return;
+
+        await _pluginInteractionService.RemovePluginSettings(Plugin);
+    }
+
+    public async Task Remove()
+    {
+        if (Plugin == null)
+            return;
+
+        await _pluginInteractionService.RemovePlugin(Plugin);
+    }
+
+    public async Task AutoEnable()
+    {
+        if (IsEnabled)
+            return;
+
+        await UpdateEnabled(true);
+
+        // If enabling failed, don't offer to show the settings
+        if (!IsEnabled || Plugin?.ConfigurationDialog == null)
+            return;
+
+        if (await _windowService.ShowConfirmContentDialog("Open plugin settings", "This plugin has settings, would you like to view them?", "Yes", "No"))
+            ExecuteOpenSettings();
+    }
+
+    public async Task ViewEntry()
+    {
+        if (WorkshopEntry != null)
+            await _workshopService.NavigateToEntry(WorkshopEntry.Id, WorkshopEntry.EntryType);
+    }
+
+    public async Task ExecuteRemovePrerequisites(bool forPluginRemoval = false)
+    {
+        if (Plugin == null)
+            return;
+
+        List<IPrerequisitesSubject> subjects = [PluginInfo];
+        subjects.AddRange(!forPluginRemoval ? Plugin.Features.Where(f => f.AlwaysEnabled) : Plugin.Features);
+
+        if (subjects.Any(s => s.PlatformPrerequisites.Any(p => p.UninstallActions.Any())))
+            await PluginPrerequisitesUninstallDialogViewModel.Show(_windowService, subjects, forPluginRemoval ? "Skip, remove plugin" : "Cancel");
+    }
+
     private void ExecuteOpenSettings()
     {
         if (Plugin?.ConfigurationDialog == null)
@@ -148,19 +209,6 @@ public partial class PluginViewModel : ActivatableViewModelBase
         }
     }
 
-    private void ExecuteOpenPluginDirectory()
-    {
-        try
-        {
-            if (Plugin != null)
-                Utilities.OpenFolder(Plugin.Directory.FullName);
-        }
-        catch (Exception e)
-        {
-            _windowService.ShowExceptionDialog("Welp, we couldn't open the device's plugin folder for you", e);
-        }
-    }
-
     private async Task ExecuteInstallPrerequisites()
     {
         if (Plugin == null)
@@ -173,46 +221,6 @@ public partial class PluginViewModel : ActivatableViewModelBase
             await PluginPrerequisitesInstallDialogViewModel.Show(_windowService, subjects);
     }
 
-    public async Task ExecuteRemovePrerequisites(bool forPluginRemoval = false)
-    {
-        if (Plugin == null)
-            return;
-
-        List<IPrerequisitesSubject> subjects = [PluginInfo];
-        subjects.AddRange(!forPluginRemoval ? Plugin.Features.Where(f => f.AlwaysEnabled) : Plugin.Features);
-
-        if (subjects.Any(s => s.PlatformPrerequisites.Any(p => p.UninstallActions.Any())))
-            await PluginPrerequisitesUninstallDialogViewModel.Show(_windowService, subjects, forPluginRemoval ? "Skip, remove plugin" : "Cancel");
-    }
-
-    private async Task ExecuteRemoveSettings()
-    {
-        if (Plugin == null)
-            return;
-
-        await _pluginInteractionService.RemovePluginSettings(Plugin);
-    }
-
-    private async Task ExecuteRemove()
-    {
-        if (Plugin == null)
-            return;
-
-        await _pluginInteractionService.RemovePlugin(Plugin);
-    }
-
-    private void ExecuteShowLogsFolder()
-    {
-        try
-        {
-            Utilities.OpenFolder(Constants.LogsFolder);
-        }
-        catch (Exception e)
-        {
-            _windowService.ShowExceptionDialog("Welp, we couldn\'t open the logs folder for you", e);
-        }
-    }
-
     private void OnPluginToggled(object? sender, EventArgs e)
     {
         Dispatcher.UIThread.Post(() =>
@@ -221,20 +229,5 @@ public partial class PluginViewModel : ActivatableViewModelBase
             if (!IsEnabled)
                 _settingsWindow?.Close();
         });
-    }
-
-    public async Task AutoEnable()
-    {
-        if (IsEnabled)
-            return;
-
-        await UpdateEnabled(true);
-
-        // If enabling failed, don't offer to show the settings
-        if (!IsEnabled || Plugin?.ConfigurationDialog == null)
-            return;
-
-        if (await _windowService.ShowConfirmContentDialog("Open plugin settings", "This plugin has settings, would you like to view them?", "Yes", "No"))
-            ExecuteOpenSettings();
     }
 }

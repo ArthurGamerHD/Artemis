@@ -26,7 +26,8 @@ public partial class WorkshopLibraryViewModel : RoutableHostScreen<RoutableScree
         Tabs =
         [
             new RouteViewModel("Installed", "workshop/library/installed"),
-            new RouteViewModel("Submissions", "workshop/library/submissions")
+            new RouteViewModel("Submissions", "workshop/library/submissions"),
+            new RouteViewModel("Recently Updated", "workshop/library/recently-updated")
         ];
 
         this.WhenActivated(d =>

@@ -93,6 +93,12 @@
                     <avalonia:MaterialIcon Kind="Cog" />
                 </HyperlinkButton>
                 <HyperlinkButton Classes="icon-button icon-button-large"
+                                 IsVisible="{CompiledBinding WorkshopEntry, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                 Command="{CompiledBinding ViewEntry}"
+                                 ToolTip.Tip="View on workshop">
+                    <avalonia:MaterialIcon Kind="TestTube" />
+                </HyperlinkButton>
+                <HyperlinkButton Classes="icon-button icon-button-large"
                                           IsVisible="{CompiledBinding PluginInfo.HelpPage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                           NavigateUri="{CompiledBinding PluginInfo.HelpPage}"
                                           ToolTip.Tip="{CompiledBinding PluginInfo.HelpPage}">
