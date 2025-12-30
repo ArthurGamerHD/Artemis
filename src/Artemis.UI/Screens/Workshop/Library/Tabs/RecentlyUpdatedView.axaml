@@ -6,5 +6,46 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Artemis.UI.Screens.Workshop.Library.Tabs.RecentlyUpdatedView"
              x:DataType="tabs:RecentlyUpdatedViewModel">
-    Welcome to Avalonia!
+    <UserControl.Styles>
+        <Styles>
+            <Style Selector="StackPanel.empty-state > TextBlock">
+                <Setter Property="TextAlignment" Value="Center"></Setter>
+                <Setter Property="TextWrapping" Value="Wrap"></Setter>
+            </Style>
+        </Styles>
+    </UserControl.Styles>
+    
+     <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" Grid.Column="0" MaxWidth="1000" Margin="0 22 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="165" MaxWidth="400" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBox Classes="search-box" Text="{CompiledBinding SearchEntryInput}" Watermark="Search updates" Margin="0 0 10 0" />
+        </Grid>
+        
+        <StackPanel Grid.Row="1" Grid.Column="0" IsVisible="{CompiledBinding Empty}" Margin="0 50 0 0" Classes="empty-state">
+            <TextBlock Theme="{StaticResource TitleTextBlockStyle}">Looks like nothing updated in the last 30 days</TextBlock>
+            <TextBlock>
+                <Run>Any entries you download that recently received updates will show up here</Run>
+            </TextBlock>
+            <!-- <Lottie Path="/Assets/Animations/empty.json" RepeatCount="1" Width="350" Height="350"></Lottie> -->
+            <Button HorizontalAlignment="Center" Command="{CompiledBinding OpenWorkshop}">Browse the Workshop</Button>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top">
+            <ItemsControl ItemsSource="{CompiledBinding Entries}" Margin="0 0 20 0" MaxWidth="1000">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ContentControl Content="{CompiledBinding}" Margin="0 0 0 8"></ContentControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

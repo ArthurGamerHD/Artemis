@@ -2,7 +2,7 @@
 
 namespace Artemis.UI.Screens.Workshop.Library.Tabs;
 
-public partial class RecentlyUpdatedView : ReactiveUserControl<InstalledTabViewModel>
+public partial class RecentlyUpdatedView : ReactiveUserControl<RecentlyUpdatedViewModel>
 {
     public RecentlyUpdatedView()
     {

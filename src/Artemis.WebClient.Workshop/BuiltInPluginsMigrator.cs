@@ -57,17 +57,11 @@ public static class BuiltInPluginsMigrator
         }
 
         logger.Information("MigrateBuiltInPlugins - Migrating built-in plugins to workshop entries");
-        IOperationResult<IGetDefaultPluginsResult> result = await workshopClient.GetDefaultPlugins.ExecuteAsync(100, null, CancellationToken.None);
-        List<IGetDefaultPlugins_EntriesV2_Edges_Node> entries = result.Data?.EntriesV2?.Edges?.Select(e => e.Node).ToList() ?? [];
-        while (result.Data?.EntriesV2?.PageInfo is {HasNextPage: true})
-        {
-            result = await workshopClient.GetDefaultPlugins.ExecuteAsync(100, result.Data.EntriesV2.PageInfo.EndCursor, CancellationToken.None);
-            if (result.Data?.EntriesV2?.Edges != null)
-                entries.AddRange(result.Data.EntriesV2.Edges.Select(e => e.Node));
-        }
-
+        IOperationResult<IGetDefaultPluginsResult> result = await workshopClient.GetDefaultPlugins.ExecuteAsync(CancellationToken.None);
+        IReadOnlyList<IGetDefaultPlugins_Entries> entries = result.Data?.Entries ?? [];
+        
         logger.Information("MigrateBuiltInPlugins - Found {Count} default plugins in the workshop", entries.Count);
-        foreach (IGetDefaultPlugins_EntriesV2_Edges_Node entry in entries)
+        foreach (IGetDefaultPlugins_Entries entry in entries)
         {
             // Skip entries without plugin info or releases, shouldn't happen but theoretically possible
             if (entry.PluginInfo == null || entry.LatestRelease == null)

@@ -100,19 +100,13 @@ public partial class DefaultEntriesStepViewModel : WizardStepViewModel
     {
         FetchingDefaultEntries = true;
 
-        IOperationResult<IGetDefaultEntriesResult> result = await _client.GetDefaultEntries.ExecuteAsync(100, null, cancellationToken);
-        List<IEntrySummary> entries = result.Data?.EntriesV2?.Edges?.Select(e => e.Node).Cast<IEntrySummary>().ToList() ?? [];
-        while (result.Data?.EntriesV2?.PageInfo is {HasNextPage: true})
-        {
-            result = await _client.GetDefaultEntries.ExecuteAsync(100, result.Data.EntriesV2.PageInfo.EndCursor, cancellationToken);
-            if (result.Data?.EntriesV2?.Edges != null)
-                entries.AddRange(result.Data.EntriesV2.Edges.Select(e => e.Node));
-        }
+        IOperationResult<IGetDefaultEntriesResult> result = await _client.GetDefaultEntries.ExecuteAsync(cancellationToken);
+        IReadOnlyList<IGetDefaultEntries_Entries> entries = result.Data?.Entries ?? [];
 
         DeviceProviderEntryViewModels.Clear();
         EssentialEntryViewModels.Clear();
         OtherEntryViewModels.Clear();
-        foreach (IEntrySummary entry in entries)
+        foreach (IGetDefaultEntries_Entries entry in entries)
         {
             if (entry.DefaultEntryInfo == null)
                 continue;

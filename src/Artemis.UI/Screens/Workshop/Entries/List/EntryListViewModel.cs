@@ -25,7 +25,7 @@ public partial class EntryListViewModel : RoutableScreen
     private readonly SourceList<IEntrySummary> _entries = new();
     private readonly INotificationService _notificationService;
     private readonly IWorkshopClient _workshopClient;
-    private IGetEntries_EntriesV2_PageInfo? _currentPageInfo;
+    private IGetEntries_PagedEntries_PageInfo? _currentPageInfo;
 
     [Notify] private bool _initializing = true;
     [Notify] private bool _fetchingMore;
@@ -98,11 +98,11 @@ public partial class EntryListViewModel : RoutableScreen
             IOperationResult<IGetEntriesResult> entries = await _workshopClient.GetEntries.ExecuteAsync(search, IncludeDefaultEntries, filter, sort, entriesPerFetch, _currentPageInfo?.EndCursor, cancellationToken);
             entries.EnsureNoErrors();
 
-            _currentPageInfo = entries.Data?.EntriesV2?.PageInfo;
-            if (entries.Data?.EntriesV2?.Edges != null)
-                _entries.Edit(e => e.AddRange(entries.Data.EntriesV2.Edges.Select(edge => edge.Node)));
+            _currentPageInfo = entries.Data?.PagedEntries?.PageInfo;
+            if (entries.Data?.PagedEntries?.Edges != null)
+                _entries.Edit(e => e.AddRange(entries.Data.PagedEntries.Edges.Select(edge => edge.Node)));
 
-            InputViewModel.TotalCount = entries.Data?.EntriesV2?.TotalCount ?? 0;
+            InputViewModel.TotalCount = entries.Data?.PagedEntries?.TotalCount ?? 0;
         }
         catch (Exception e)
         {

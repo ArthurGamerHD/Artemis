@@ -1,5 +1,5 @@
 query GetEntries($search: String $includeDefaults: Boolean $filter: EntryFilterInput $order: [EntrySortInput!] $first: Int $after: String) {
-    entriesV2(search: $search includeDefaults: $includeDefaults where: $filter order: $order first: $first after: $after) {
+    pagedEntries(search: $search includeDefaults: $includeDefaults where: $filter order: $order first: $first after: $after) {
         totalCount
         pageInfo {
             hasNextPage
@@ -20,29 +20,17 @@ query GetPopularEntries {
     }
 }
 
-query GetDefaultEntries($first: Int, $after: String) {
-    entriesV2(
+query GetDefaultEntries {
+    entries(
         includeDefaults: true
         where: { defaultEntryInfo: { entryId: { gt: 0 } } }
-        first: $first
-        after: $after
     ) {
-        totalCount
-        pageInfo {
-            hasNextPage
-            endCursor
-        }
-        edges {
-            cursor
-            node {
-                ...entrySummary
-            }
-        }
+        ...entrySummary
     }
 }
 
-query GetDefaultPlugins($first: Int, $after: String) {
-    entriesV2(
+query GetDefaultPlugins {
+    entries(
         includeDefaults: true
         where: {
             and: [
@@ -50,22 +38,34 @@ query GetDefaultPlugins($first: Int, $after: String) {
                 { entryType: {eq: PLUGIN} }
             ]
         }
-        first: $first
-        after: $after
     ) {
-        totalCount
-        pageInfo {
-            hasNextPage
-            endCursor
+        ...entrySummary
+        pluginInfo {
+            pluginGuid
         }
-        edges {
-            cursor
-            node {
-                ...entrySummary
-                pluginInfo {
-                    pluginGuid
-                }
-            }
+    }
+}
+
+query GetRecentUpdates($entryIds: [Long!]!, $cutoff: DateTime!) {
+    entries(
+        includeDefaults: true
+        where: {
+            and: [
+                { id: { in: $entryIds } }
+                { latestRelease: { createdAt: { gte: $cutoff } } }
+            ]
+        }
+    ) {
+        id
+        author
+        isOfficial
+        name
+        summary
+        entryType
+        createdAt        
+        latestRelease {
+            ...release
+            changelog
         }
     }
 }

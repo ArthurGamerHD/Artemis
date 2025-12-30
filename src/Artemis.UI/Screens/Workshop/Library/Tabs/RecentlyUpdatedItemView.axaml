@@ -3,8 +3,87 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tabs="clr-namespace:Artemis.UI.Screens.Workshop.Library.Tabs"
+             xmlns:il="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:converters="clr-namespace:Artemis.UI.Converters"
+             xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
+             xmlns:ui="clr-namespace:Artemis.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Artemis.UI.Screens.Workshop.Library.Tabs.RecentlyUpdatedItemView"
              x:DataType="tabs:RecentlyUpdatedItemViewModel">
-    Welcome to Avalonia!
+    <UserControl.Resources>
+        <converters:EntryIconUriConverter x:Key="EntryIconUriConverter" />
+        <converters:DateTimeConverter x:Key="DateTimeConverter" />
+        <ui:ArtemisLinkCommand x:Key="ArtemisLinkCommand" />
+    </UserControl.Resources>
+    <Border MinHeight="110"
+            MaxHeight="140"
+            Padding="12"
+            HorizontalAlignment="Stretch"
+            Classes="card">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto, Auto">
+
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                <!-- Icon -->
+                <Border CornerRadius="6"
+                        VerticalAlignment="Center"
+                        Margin="0 0 2 0"
+                        Width="20"
+                        Height="20"
+                        ClipToBounds="True">
+                    <Image Stretch="UniformToFill" il:ImageLoader.Source="{CompiledBinding Entry.Id, Converter={StaticResource EntryIconUriConverter}, Mode=OneWay}" />
+                </Border>
+
+                <!-- Title -->
+                <TextBlock Margin="0 0 0 5" TextTrimming="CharacterEllipsis">
+                    <Run Classes="h5" Text="{CompiledBinding Entry.Name, FallbackValue=Title}" />
+                    <Run Classes="subtitle">by</Run>
+                    <Run Classes="subtitle" Text="{CompiledBinding Entry.Author, FallbackValue=Author}" />
+                </TextBlock>
+                <avalonia:MaterialIcon
+                    IsVisible="{CompiledBinding Entry.IsOfficial}"
+                    Kind="ShieldStar"
+                    Foreground="{DynamicResource SystemAccentColorLight1}"
+                    Margin="2 -2 0 0"
+                    Width="18"
+                    Height="18"
+                    HorizontalAlignment="Left"
+                    ToolTip.Tip="Official entry by the Artemis team" />
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Grid.Row="0">
+                <!-- Info -->
+                <StackPanel Margin="0 0 4 0" HorizontalAlignment="Right">
+                    <TextBlock TextAlignment="Right">
+                        <avalonia:MaterialIcon Kind="Harddisk" />
+                        <Run Text="{CompiledBinding Release.Version}" />
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Install state -->
+                <StackPanel Margin="0 0 4 0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <TextBlock TextAlignment="Right" IsVisible="{CompiledBinding NotYetInstalled}">
+                        <avalonia:MaterialIcon Kind="Update" Foreground="{DynamicResource SystemAccentColorLight1}" Width="20" Height="20" />
+                        <Run>not yet installed</Run>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+            
+            <Panel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+                <TextBlock Classes="subtitle" IsVisible="{CompiledBinding Release.Changelog, Converter={x:Static StringConverters.IsNullOrEmpty}}">
+                    There are no release notes for this release.
+                </TextBlock>
+                <mdxaml:MarkdownScrollViewer Markdown="{CompiledBinding Release.Changelog}"
+                                             MarkdownStyleName="FluentAvalonia"
+                                             IsVisible="{CompiledBinding Release.Changelog, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <mdxaml:MarkdownScrollViewer.Engine>
+                        <mdxaml:Markdown HyperlinkCommand="{StaticResource ArtemisLinkCommand}" />
+                    </mdxaml:MarkdownScrollViewer.Engine>
+                    <mdxaml:MarkdownScrollViewer.Styles>
+                        <StyleInclude Source="/Styles/Markdown.axaml" />
+                    </mdxaml:MarkdownScrollViewer.Styles>
+                </mdxaml:MarkdownScrollViewer>
+            </Panel>
+        </Grid>
+    </Border>
 </UserControl>
