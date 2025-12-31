@@ -15,8 +15,8 @@
         </Styles>
     </UserControl.Styles>
     
-     <Grid RowDefinitions="Auto,*" MaxWidth="1000">
-        <Grid Grid.Row="0" Grid.Column="0" Margin="0 22 0 10">
+     <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" Grid.Column="0" Margin="0 22 0 10" MaxWidth="1020">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="165" MaxWidth="400" />
                 <ColumnDefinition Width="*" />
@@ -24,7 +24,7 @@
             <TextBox Classes="search-box" Text="{CompiledBinding SearchEntryInput}" Watermark="Search updates" Margin="0 0 10 0" />
         </Grid>
         
-        <StackPanel Grid.Row="1" Grid.Column="0" IsVisible="{CompiledBinding Empty}" Margin="0 50 0 0" Classes="empty-state">
+        <StackPanel Grid.Row="1" Grid.Column="0" IsVisible="{CompiledBinding Empty}" Margin="0 50 0 0" Classes="empty-state" MaxWidth="1000">
             <TextBlock Theme="{StaticResource TitleTextBlockStyle}">Looks like nothing updated in the last 30 days</TextBlock>
             <TextBlock>
                 <Run>Any entries you download that recently received updates will show up here</Run>
@@ -34,7 +34,7 @@
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top">
-            <ItemsControl ItemsSource="{CompiledBinding Entries}" Margin="0 0 20 0">
+            <ItemsControl ItemsSource="{CompiledBinding Entries}" Margin="0 0 20 0" MaxWidth="1000">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel />

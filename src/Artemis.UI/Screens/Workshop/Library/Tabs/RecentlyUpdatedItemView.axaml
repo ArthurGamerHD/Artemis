@@ -37,13 +37,14 @@
         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto, Auto">
             <StackPanel Grid.Column="0"
                         Grid.Row="0"
+                        Spacing="4"
                         Classes="entry-clickable"
                         Orientation="Horizontal"
                         Cursor="Hand"
                         Background="Transparent"
                         PointerPressed="Entry_OnPointerPressed">
                 <!-- Icon -->
-                <Border CornerRadius="6"
+                <Border CornerRadius="3"
                         VerticalAlignment="Center"
                         Width="18"
                         Height="18"
@@ -52,7 +53,7 @@
                 </Border>
 
                 <!-- Title -->
-                <TextBlock Margin="2 0" TextTrimming="CharacterEllipsis">
+                <TextBlock TextTrimming="CharacterEllipsis">
                     <Run Text="{CompiledBinding Entry.Name, FallbackValue=Title}" />
                     <Run Classes="subtitle">by</Run>
                     <Run Classes="subtitle" Text="{CompiledBinding Entry.Author, FallbackValue=Author}" />
@@ -69,6 +70,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <TextBlock IsVisible="{CompiledBinding NotYetInstalled}">Not up-to-date</TextBlock>
                 <Border Classes="badge" VerticalAlignment="Top">
                     <TextBlock Text="{CompiledBinding Entry.EntryType}"></TextBlock>
                 </Border>
@@ -86,8 +88,8 @@
                                            Cursor="Hand"
                                            Background="Transparent"
                                            PointerPressed="Release_OnPointerPressed" />
-                                <TextBlock Grid.Column="1" 
-                                           Text="{CompiledBinding CreatedAt, Converter={StaticResource DateTimeConverter}, ConverterParameter='humanize'}" 
+                                <TextBlock Grid.Column="1"
+                                           Text="{CompiledBinding CreatedAt, Converter={StaticResource DateTimeConverter}, ConverterParameter='humanize'}"
                                            Classes="subtitle"
                                            HorizontalAlignment="Right" />
                             </Grid>

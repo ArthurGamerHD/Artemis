@@ -21,7 +21,7 @@ public partial class RecentlyUpdatedItemViewModel : ActivatableViewModelBase
     {
         _workshopService = workshopService;
         _router = router;
-        Releases = entry.Releases;
+        Releases = entry.Releases.Take(3).ToList();
         Entry = entry;
         InstalledEntry = workshopService.GetInstalledEntry(entry.Id) ?? throw new InvalidOperationException("Entry is not installed");
         LatestRelease = Releases.First(r => r.Id == entry.LatestReleaseId);

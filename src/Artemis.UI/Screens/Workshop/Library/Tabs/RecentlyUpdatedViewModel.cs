@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.UI.Extensions;
+using Artemis.UI.Services.Interfaces;
 using Artemis.UI.Shared.Routing;
 using Artemis.WebClient.Workshop;
 using Artemis.WebClient.Workshop.Models;
@@ -32,6 +33,7 @@ public partial class RecentlyUpdatedViewModel : RoutableScreen
     [Notify] private string? _searchEntryInput;
 
     public RecentlyUpdatedViewModel(IWorkshopService workshopService,
+        IWorkshopUpdateService workshopUpdateService,
         IWorkshopClient client,
         IRouter router,
         Func<IGetRecentUpdates_Entries, RecentlyUpdatedItemViewModel> getRecentlyUpdatedItemViewModel)
@@ -61,6 +63,7 @@ public partial class RecentlyUpdatedViewModel : RoutableScreen
 
         this.WhenActivatedAsync(async d =>
         {
+            workshopUpdateService.MarkUpdatesAsSeen();
             WorkshopReachable = await workshopService.ValidateWorkshopStatus(true, d.AsCancellationToken());
             if (WorkshopReachable)
                 await GetEntries(d.AsCancellationToken());
