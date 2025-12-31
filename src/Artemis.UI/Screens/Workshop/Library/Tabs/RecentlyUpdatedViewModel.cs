@@ -51,7 +51,7 @@ public partial class RecentlyUpdatedViewModel : RoutableScreen
             .Transform(getRecentlyUpdatedItemViewModel)
             .SortAndBind(
                 out ReadOnlyObservableCollection<RecentlyUpdatedItemViewModel> entries,
-                SortExpressionComparer<RecentlyUpdatedItemViewModel>.Descending(p => p.Release.CreatedAt)
+                SortExpressionComparer<RecentlyUpdatedItemViewModel>.Descending(p => p.LatestRelease.CreatedAt)
             )
             .Subscribe();
 

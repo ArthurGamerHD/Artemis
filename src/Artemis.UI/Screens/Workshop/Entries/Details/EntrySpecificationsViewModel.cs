@@ -69,7 +69,7 @@ public partial class EntrySpecificationsViewModel : ValidatableViewModelBase
         _categoriesValid = categoriesRule.ValidationChanged.Select(c => c.IsValid).ToProperty(this, vm => vm.CategoriesValid);
         _descriptionValid = descriptionRule.ValidationChanged.Select(c => c.IsValid).ToProperty(this, vm => vm.DescriptionValid);
 
-        IsAdministrator = authenticationService.GetRoles().Contains("Administrator");
+        IsAdministrator = authenticationService.Roles.Contains("Administrator");
         this.WhenActivatedAsync(async _ => await PopulateCategories());
         this.WhenAnyValue(vm => vm.Fit).Subscribe(_ => UpdateIcon());
     }

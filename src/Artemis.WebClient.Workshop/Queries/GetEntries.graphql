@@ -45,27 +45,3 @@ query GetDefaultPlugins {
         }
     }
 }
-
-query GetRecentUpdates($entryIds: [Long!]!, $cutoff: DateTime!) {
-    entries(
-        includeDefaults: true
-        where: {
-            and: [
-                { id: { in: $entryIds } }
-                { latestRelease: { createdAt: { gte: $cutoff } } }
-            ]
-        }
-    ) {
-        id
-        author
-        isOfficial
-        name
-        summary
-        entryType
-        createdAt        
-        latestRelease {
-            ...release
-            changelog
-        }
-    }
-}

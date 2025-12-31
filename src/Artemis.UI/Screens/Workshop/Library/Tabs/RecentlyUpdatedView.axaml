@@ -15,8 +15,8 @@
         </Styles>
     </UserControl.Styles>
     
-     <Grid RowDefinitions="Auto,*">
-        <Grid Grid.Row="0" Grid.Column="0" MaxWidth="1000" Margin="0 22 0 10">
+     <Grid RowDefinitions="Auto,*" MaxWidth="1000">
+        <Grid Grid.Row="0" Grid.Column="0" Margin="0 22 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="165" MaxWidth="400" />
                 <ColumnDefinition Width="*" />
@@ -34,7 +34,7 @@
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top">
-            <ItemsControl ItemsSource="{CompiledBinding Entries}" Margin="0 0 20 0" MaxWidth="1000">
+            <ItemsControl ItemsSource="{CompiledBinding Entries}" Margin="0 0 20 0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <VirtualizingStackPanel />

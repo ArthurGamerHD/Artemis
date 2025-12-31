@@ -65,7 +65,10 @@ type Entry {
     categories: [Category!]!
     tags: [Tag!]!
     images: [Image!]!
-    releases: [Release!]!
+    releases(
+        order: [ReleaseSortInput!] @cost(weight: "10")
+        where: ReleaseFilterInput @cost(weight: "10")
+    ): [Release!]!
     dependantReleases: [Release!]!
 }
 

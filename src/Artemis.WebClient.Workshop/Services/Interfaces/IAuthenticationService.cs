@@ -8,6 +8,7 @@ public interface IAuthenticationService : IProtectedArtemisService
 {
     IObservable<bool> IsLoggedIn { get; }
     ReadOnlyObservableCollection<Claim> Claims { get; }
+    ReadOnlyObservableCollection<string> Roles { get; }
 
     IObservable<Claim?> GetClaim(string type);
     Task<string?> GetBearer();
@@ -15,5 +16,4 @@ public interface IAuthenticationService : IProtectedArtemisService
     Task Login(CancellationToken cancellationToken);
     Task Logout();
     bool GetIsEmailVerified();
-    List<string> GetRoles();
 }
