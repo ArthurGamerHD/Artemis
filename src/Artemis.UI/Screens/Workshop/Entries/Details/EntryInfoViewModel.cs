@@ -39,7 +39,7 @@ public partial class EntryInfoViewModel : ActivatableViewModelBase
                 .DisposeWith(d);
         });
         
-        IsAdministrator = authenticationService.GetRoles().Contains("Administrator");
+        IsAdministrator = authenticationService.Roles.Contains("Administrator");
     }
 
     public bool IsAdministrator { get; }

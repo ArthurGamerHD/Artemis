@@ -55,8 +55,8 @@ public partial class WorkshopHomeViewModel : RoutableScreen
             latest.Edit(l =>
             {
                 l.Clear();
-                if (latestResult.Data?.EntriesV2?.Edges != null)
-                    l.AddRange(latestResult.Data.EntriesV2.Edges.Select(e => e.Node));
+                if (latestResult.Data?.PagedEntries?.Edges != null)
+                    l.AddRange(latestResult.Data.PagedEntries.Edges.Select(e => e.Node));
             });
         });
     }
