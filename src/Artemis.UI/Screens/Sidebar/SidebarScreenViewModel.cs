@@ -47,7 +47,10 @@ public partial class SidebarScreenViewModel : ViewModelBase
     public void ExpandIfRequired(SidebarScreenViewModel selected)
     {
         if (selected == this)
+        {
+            IsExpanded = true;
             return;
+        }
 
         if (Screens.Contains(selected))
             IsExpanded = true;

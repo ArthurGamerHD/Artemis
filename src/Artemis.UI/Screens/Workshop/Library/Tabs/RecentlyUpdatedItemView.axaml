@@ -44,7 +44,7 @@
                         Background="Transparent"
                         PointerPressed="Entry_OnPointerPressed">
                 <!-- Icon -->
-                <Border CornerRadius="3"
+                <Border CornerRadius="2"
                         VerticalAlignment="Center"
                         Width="18"
                         Height="18"
