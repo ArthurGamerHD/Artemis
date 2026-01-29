@@ -1,0 +1,27 @@
+query GetRecentUpdates($entryIds: [Long!]!, $cutoff: DateTime!) {
+    entries(
+        includeDefaults: true
+        order: [{ latestRelease: { createdAt: DESC } }]
+        where: {
+            and: [
+                { id: { in: $entryIds } }
+                { releases: { some: { createdAt: { gte: $cutoff } } } }
+            ]
+        }
+    ) {
+        id
+        author
+        isOfficial
+        name
+        summary
+        entryType
+        latestReleaseId
+        releases(
+            order: [{ createdAt: DESC }]
+            where: { createdAt: { gte: $cutoff } }
+        ) {
+            ...release
+            changelog
+        }
+    }
+}

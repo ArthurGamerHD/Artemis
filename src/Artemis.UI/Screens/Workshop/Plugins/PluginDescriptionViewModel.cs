@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ public partial class PluginDescriptionViewModel : RoutableScreen
 
         if (entry != null)
         {
-            IReadOnlyList<IEntrySummary>? dependants = (await _client.GetDependantEntries.ExecuteAsync(entry.Id, 0, 25, cancellationToken)).Data?.Entries?.Items;
+            IReadOnlyList<IEntrySummary>? dependants = (await _client.GetDependantEntries.ExecuteAsync(entry.Id, cancellationToken)).Data?.Entries;
             Dependants = dependants != null && dependants.Any() ? dependants.Select(_getEntryListViewModel).OrderByDescending(d => d.Entry.Downloads).Take(10).ToList() : null;
         }
         else

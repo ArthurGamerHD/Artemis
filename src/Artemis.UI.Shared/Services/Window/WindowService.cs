@@ -8,6 +8,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using DryIoc;
 using FluentAvalonia.UI.Controls;
+using ContentDialogButton = Artemis.UI.Shared.Services.Builders.ContentDialogButton;
 
 namespace Artemis.UI.Shared.Services;
 
@@ -94,6 +95,7 @@ internal class WindowService : IWindowService
             .WithTitle(title)
             .WithContent(message)
             .HavingPrimaryButton(b => b.WithText(confirm))
+            .WithDefaultButton(ContentDialogButton.Primary)
             .WithCloseButtonText(cancel)
             .ShowAsync();
 
@@ -123,7 +125,7 @@ internal class WindowService : IWindowService
         return await window.ShowDialog<TResult>(parent);
     }
 
-    public void ShowExceptionDialog(string title, Exception exception)
+    public void ShowExceptionDialog(string title, Exception exception, string? customMessage = null)
     {
         if (_exceptionDialogOpen)
             return;
@@ -134,7 +136,7 @@ internal class WindowService : IWindowService
         {
             try
             {
-                await ShowDialogAsync(new ExceptionDialogViewModel(title, exception, _container.Resolve<INotificationService>()));
+                await ShowDialogAsync(new ExceptionDialogViewModel(title, exception, customMessage, _container.Resolve<INotificationService>()));
             }
             finally
             {

@@ -211,13 +211,13 @@ public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProv
     {
         get
         {
-            string uri = DEFAULT_ICON;
+            string uri = "avares://Artemis.UI/Assets/Images/Logo/application.ico";
             switch (trayIconSetting.Value)
             {
                 case TrayIconEnum.Default:
                     break;
                 case TrayIconEnum.Monochrome:
-                    uri = DARK_ICON;
+                    uri = "avares://Artemis.UI/Assets/Images/Logo/application-monochrome.ico";
                     break;
                 case TrayIconEnum.MonochromeDark:
                     uri = LIGHT_ICON;

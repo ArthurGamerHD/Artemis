@@ -7,7 +7,7 @@ using Artemis.UI.Shared;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using ReactiveUI;
 
 namespace Artemis.UI;
@@ -83,9 +83,10 @@ public partial class MainWindow : ReactiveAppWindow<RootViewModel>
 
     private void InputElement_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (e.InitialPressMouseButton == MouseButton.XButton1)
+        
+        if (e.Properties.PointerUpdateKind == PointerUpdateKind.XButton1Released)
             ViewModel?.GoBack();
-        else if (e.InitialPressMouseButton == MouseButton.XButton2)
+        else if (e.Properties.PointerUpdateKind == PointerUpdateKind.XButton2Released)
             ViewModel?.GoForward();
     }
 }

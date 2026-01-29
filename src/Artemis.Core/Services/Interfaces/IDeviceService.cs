@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Artemis.Core.DeviceProviders;
 
 namespace Artemis.Core.Services;
@@ -46,7 +45,8 @@ public interface IDeviceService : IArtemisService
     /// <summary>
     ///     Applies auto-arranging logic to the surface
     /// </summary>
-    void AutoArrangeDevices();
+    /// <param name="leftHanded"></param>
+    void AutoArrangeDevices(bool leftHanded);
 
     /// <summary>
     ///     Apples the best available to the provided <see cref="ArtemisDevice" />

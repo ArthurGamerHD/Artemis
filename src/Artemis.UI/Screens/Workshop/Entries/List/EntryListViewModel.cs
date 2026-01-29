@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,25 +25,28 @@ public partial class EntryListViewModel : RoutableScreen
     private readonly SourceList<IEntrySummary> _entries = new();
     private readonly INotificationService _notificationService;
     private readonly IWorkshopClient _workshopClient;
-    private IGetEntriesv2_EntriesV2_PageInfo? _currentPageInfo;
+    private IGetEntries_PagedEntries_PageInfo? _currentPageInfo;
 
     [Notify] private bool _initializing = true;
     [Notify] private bool _fetchingMore;
     [Notify] private int _entriesPerFetch;
+    [Notify] private bool _includeDefaultEntries = true;
     [Notify] private Vector _scrollOffset;
 
-    protected EntryListViewModel(IWorkshopClient workshopClient,
-        CategoriesViewModel categoriesViewModel,
+    protected EntryListViewModel(EntryType entryType,
+        IWorkshopClient workshopClient,
         EntryListInputViewModel entryListInputViewModel,
         INotificationService notificationService,
+        Func<EntryType, CategoriesViewModel> getCategoriesViewModel,
         Func<IEntrySummary, EntryListItemViewModel> getEntryListViewModel)
     {
         _workshopClient = workshopClient;
         _notificationService = notificationService;
 
-        CategoriesViewModel = categoriesViewModel;
+        CategoriesViewModel = getCategoriesViewModel(entryType);
         InputViewModel = entryListInputViewModel;
-
+        EntryType = entryType;
+        
         _entries.Connect()
             .Transform(getEntryListViewModel)
             .Bind(out ReadOnlyObservableCollection<EntryListItemViewModel> entries)
@@ -51,13 +54,14 @@ public partial class EntryListViewModel : RoutableScreen
         Entries = entries;
 
         // Respond to filter query input changes
+        this.WhenAnyValue(vm => vm.IncludeDefaultEntries).Skip(1).Throttle(TimeSpan.FromMilliseconds(200)).Subscribe(_ => Reset());
         this.WhenActivated(d =>
         {
             InputViewModel.WhenAnyValue(vm => vm.Search).Skip(1).Throttle(TimeSpan.FromMilliseconds(200)).Subscribe(_ => Reset()).DisposeWith(d);
             InputViewModel.WhenAnyValue(vm => vm.SortBy).Skip(1).Throttle(TimeSpan.FromMilliseconds(200)).Subscribe(_ => Reset()).DisposeWith(d);
             CategoriesViewModel.WhenAnyValue(vm => vm.CategoryFilters).Skip(1).Subscribe(_ => Reset()).DisposeWith(d);
         });
-        
+
         // Load entries when the view model is first activated
         this.WhenActivatedAsync(async _ =>
         {
@@ -73,10 +77,10 @@ public partial class EntryListViewModel : RoutableScreen
     public CategoriesViewModel CategoriesViewModel { get; }
     public EntryListInputViewModel InputViewModel { get; }
     public bool ShowCategoryFilter { get; set; } = true;
-    public EntryType? EntryType { get; set; }
+    public EntryType EntryType { get; }
 
     public ReadOnlyObservableCollection<EntryListItemViewModel> Entries { get; }
-    
+
     public async Task FetchMore(CancellationToken cancellationToken)
     {
         if (FetchingMore || _currentPageInfo != null && !_currentPageInfo.HasNextPage)
@@ -91,14 +95,14 @@ public partial class EntryListViewModel : RoutableScreen
 
         try
         {
-            IOperationResult<IGetEntriesv2Result> entries = await _workshopClient.GetEntriesv2.ExecuteAsync(search, filter, sort, entriesPerFetch, _currentPageInfo?.EndCursor, cancellationToken);
+            IOperationResult<IGetEntriesResult> entries = await _workshopClient.GetEntries.ExecuteAsync(search, IncludeDefaultEntries, filter, sort, entriesPerFetch, _currentPageInfo?.EndCursor, cancellationToken);
             entries.EnsureNoErrors();
 
-            _currentPageInfo = entries.Data?.EntriesV2?.PageInfo;
-            if (entries.Data?.EntriesV2?.Edges != null)
-                _entries.Edit(e => e.AddRange(entries.Data.EntriesV2.Edges.Select(edge => edge.Node)));
+            _currentPageInfo = entries.Data?.PagedEntries?.PageInfo;
+            if (entries.Data?.PagedEntries?.Edges != null)
+                _entries.Edit(e => e.AddRange(entries.Data.PagedEntries.Edges.Select(edge => edge.Node)));
 
-            InputViewModel.TotalCount = entries.Data?.EntriesV2?.TotalCount ?? 0;
+            InputViewModel.TotalCount = entries.Data?.PagedEntries?.TotalCount ?? 0;
         }
         catch (Exception e)
         {
@@ -131,19 +135,19 @@ public partial class EntryListViewModel : RoutableScreen
     {
         // Sort by created at
         if (InputViewModel.SortBy == 1)
-            return new[] {new EntrySortInput {CreatedAt = SortEnumType.Desc}};
+            return [new EntrySortInput {CreatedAt = SortEnumType.Desc}];
 
         // Sort by downloads
         if (InputViewModel.SortBy == 2)
-            return new[] {new EntrySortInput {Downloads = SortEnumType.Desc}};
+            return [new EntrySortInput {Downloads = SortEnumType.Desc}];
 
 
         // Sort by latest release, then by created at
-        return new[]
-        {
+        return
+        [
             new EntrySortInput {LatestRelease = new ReleaseSortInput {CreatedAt = SortEnumType.Desc}},
             new EntrySortInput {CreatedAt = SortEnumType.Desc}
-        };
+        ];
     }
 
     private void Reset()
