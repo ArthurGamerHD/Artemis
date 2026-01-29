@@ -1,9 +1,8 @@
 using System;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using Artemis.UI.Shared;
 using Avalonia;
-using Avalonia.Markup.Xaml;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.Plugins;
@@ -19,14 +18,11 @@ public partial class PluginSettingsWindowView : ReactiveAppWindow<PluginSettings
 
         this.WhenActivated(disposables =>
             {
-                Observable.FromEventPattern(
-                        x => ViewModel!.ConfigurationViewModel.CloseRequested += x,
-                        x => ViewModel!.ConfigurationViewModel.CloseRequested -= x
-                    )
+                PluginSettingsWindowViewModel vm = ViewModel!;
+                Observable.FromEventPattern(x => vm.ConfigurationViewModel.CloseRequested += x, x => vm.ConfigurationViewModel.CloseRequested -= x)
                     .Subscribe(_ => Close())
                     .DisposeWith(disposables);
             }
         );
     }
-
 }

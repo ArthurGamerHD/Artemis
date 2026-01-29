@@ -8,7 +8,6 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.UI.Screens.Workshop.Image;
-using Artemis.UI.Shared;
 using Artemis.UI.Shared.Routing;
 using Artemis.UI.Shared.Services;
 using Artemis.WebClient.Workshop;
@@ -33,7 +32,7 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
     private readonly Func<EntrySpecificationsViewModel> _getGetSpecificationsViewModel;
     private readonly Func<IImage, ImageSubmissionViewModel> _getExistingImageSubmissionViewModel;
     private readonly Func<ImageUploadRequest, ImageSubmissionViewModel> _getImageSubmissionViewModel;
-    private readonly List<ImageSubmissionViewModel> _removedImages = new();
+    private readonly List<ImageSubmissionViewModel> _removedImages = [];
 
     [Notify] private IGetSubmittedEntryById_Entry? _entry;
     [Notify] private EntrySpecificationsViewModel? _entrySpecificationsViewModel;
@@ -59,8 +58,8 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
         DiscardChanges = ReactiveCommand.CreateFromTask(ExecuteDiscardChanges, this.WhenAnyValue(vm => vm.HasChanges));
         SaveChanges = ReactiveCommand.CreateFromTask(ExecuteSaveChanges, this.WhenAnyValue(vm => vm.HasChanges));
     }
-    
-    public ObservableCollection<ImageSubmissionViewModel> Images { get; } = new();
+
+    public ObservableCollection<ImageSubmissionViewModel> Images { get; } = [];
     public ReactiveCommand<Unit, Unit> AddImage { get; }
     public ReactiveCommand<Unit, Unit> SaveChanges { get; }
     public ReactiveCommand<Unit, Unit> DiscardChanges { get; }
@@ -105,7 +104,11 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
         specificationsViewModel.Name = Entry.Name;
         specificationsViewModel.Summary = Entry.Summary;
         specificationsViewModel.Description = Entry.Description;
+        specificationsViewModel.IsDefault = Entry.DefaultEntryInfo != null;
+        specificationsViewModel.IsEssential = Entry.DefaultEntryInfo?.IsEssential ?? false;
+        specificationsViewModel.IsDeviceProvider = Entry.DefaultEntryInfo?.IsDeviceProvider ?? false;
         specificationsViewModel.PreselectedCategories = Entry.Categories.Select(c => c.Id).ToList();
+        specificationsViewModel.EntryType = Entry.EntryType;
 
         specificationsViewModel.Tags.Clear();
         foreach (string tag in Entry.Tags.Select(c => c.Name))
@@ -170,10 +173,26 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
                      EntrySpecificationsViewModel.Description != Entry.Description ||
                      EntrySpecificationsViewModel.Summary != Entry.Summary ||
                      EntrySpecificationsViewModel.IconChanged ||
+                     HasAdminChanges() || 
                      !tags.SequenceEqual(Entry.Tags.Select(t => t.Name).OrderBy(t => t)) ||
                      !categories.SequenceEqual(Entry.Categories.Select(c => c.Id).OrderBy(c => c)) ||
                      Images.Any(i => i.HasChanges) ||
                      _removedImages.Any();
+    }
+
+    private bool HasAdminChanges()
+    {
+        if (EntrySpecificationsViewModel == null || Entry == null)
+            return false;
+
+        bool isDefault = Entry.DefaultEntryInfo != null;
+        bool isEssential = Entry.DefaultEntryInfo?.IsEssential ?? false;
+        bool isDeviceProvider = Entry.DefaultEntryInfo?.IsDeviceProvider ?? false;
+
+        return EntrySpecificationsViewModel.IsDefault != isDefault ||
+               (EntrySpecificationsViewModel.IsDefault && (
+                   EntrySpecificationsViewModel.IsEssential != isEssential ||
+                   EntrySpecificationsViewModel.IsDeviceProvider != isDeviceProvider));
     }
 
     private async Task ExecuteDiscardChanges()
@@ -193,7 +212,14 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
             Summary = EntrySpecificationsViewModel.Summary,
             Description = EntrySpecificationsViewModel.Description,
             Categories = EntrySpecificationsViewModel.SelectedCategories,
-            Tags = EntrySpecificationsViewModel.Tags
+            Tags = EntrySpecificationsViewModel.Tags,
+            DefaultEntryInfo = EntrySpecificationsViewModel.IsDefault
+                ? new DefaultEntryInfoInput
+                {
+                    IsEssential = EntrySpecificationsViewModel.IsEssential,
+                    IsDeviceProvider = EntrySpecificationsViewModel.IsDeviceProvider
+                }
+                : null
         };
 
         IOperationResult<IUpdateEntryResult> result = await _client.UpdateEntry.ExecuteAsync(input, cancellationToken);
@@ -233,7 +259,7 @@ public partial class SubmissionDetailsViewModel : RoutableScreen
         HasChanges = false;
         await _router.Reload();
     }
-    
+
     private async Task ExecuteAddImage(CancellationToken arg)
     {
         string[]? result = await _windowService.CreateOpenFileDialog().WithAllowMultiple().HavingFilter(f => f.WithBitmaps()).ShowAsync();

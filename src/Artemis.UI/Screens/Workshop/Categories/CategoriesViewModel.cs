@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using Artemis.UI.Shared;
 using Artemis.WebClient.Workshop;
@@ -18,10 +18,10 @@ public class CategoriesViewModel : ActivatableViewModelBase
 {
     private ObservableAsPropertyHelper<IReadOnlyList<EntryFilterInput>?>? _categoryFilters;
 
-    public CategoriesViewModel(IWorkshopClient client)
+    public CategoriesViewModel(EntryType entryType, IWorkshopClient client)
     {
         client.GetCategories
-            .Watch(ExecutionStrategy.CacheFirst)
+            .Watch(entryType, ExecutionStrategy.CacheFirst)
             .SelectOperationResult(c => c.Categories)
             .ToObservableChangeSet(c => c.Id)
             .Transform(c => new CategoryViewModel(c))
@@ -50,7 +50,7 @@ public class CategoriesViewModel : ActivatableViewModelBase
         if (!categories.Any())
             return null;
 
-        List<EntryFilterInput> categoryFilters = new();
+        List<EntryFilterInput> categoryFilters = [];
         foreach (long? category in categories)
         {
             categoryFilters.Add(new EntryFilterInput

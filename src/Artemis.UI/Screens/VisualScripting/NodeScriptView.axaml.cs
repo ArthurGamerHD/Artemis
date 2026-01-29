@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using Artemis.UI.Shared.Events;
 using Avalonia;
 using Avalonia.Controls;
@@ -9,9 +10,8 @@ using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using Avalonia.Threading;
 using DynamicData.Binding;
 using ReactiveUI;
@@ -33,16 +33,17 @@ public partial class NodeScriptView : ReactiveUserControl<NodeScriptViewModel>
         
         this.WhenActivated(d =>
         {
-            ViewModel!.AutoFitRequested += ViewModelOnAutoFitRequested;
-            ViewModel.PickerPositionSubject.Subscribe(ShowPickerAt).DisposeWith(d);
-            if (ViewModel.IsPreview)
+            NodeScriptViewModel vm = ViewModel!;
+            vm.AutoFitRequested += ViewModelOnAutoFitRequested;
+            vm.PickerPositionSubject.Subscribe(ShowPickerAt).DisposeWith(d);
+            if (vm.IsPreview)
             {
                 BoundsProperty.Changed.Subscribe(BoundsPropertyChanged).DisposeWith(d);
-                ViewModel.NodeViewModels.ToObservableChangeSet().Subscribe(_ => AutoFitIfPreview()).DisposeWith(d);
+                vm.NodeViewModels.ToObservableChangeSet().Subscribe(_ => AutoFitIfPreview()).DisposeWith(d);
             }
         
             Dispatcher.UIThread.InvokeAsync(() => AutoFit(true), DispatcherPriority.ContextIdle);
-            Disposable.Create(() => ViewModel.AutoFitRequested -= ViewModelOnAutoFitRequested).DisposeWith(d);
+            Disposable.Create(() => vm.AutoFitRequested -= ViewModelOnAutoFitRequested).DisposeWith(d);
         });
     }
 

@@ -22,15 +22,23 @@ public class WorkshopService : IWorkshopService
     private readonly Lazy<IPluginManagementService> _pluginManagementService;
     private readonly Lazy<IProfileService> _profileService;
     private readonly EntryInstallationHandlerFactory _factory;
+    private readonly IPluginRepository _pluginRepository;
+    private readonly IWorkshopClient _workshopClient;
+    private readonly PluginSetting<bool> _migratedBuiltInPlugins;
+
     private bool _initialized;
+    private bool _mutating;
 
     public WorkshopService(ILogger logger,
         IHttpClientFactory httpClientFactory,
         IRouter router,
         IEntryRepository entryRepository,
+        ISettingsService settingsService,
         Lazy<IPluginManagementService> pluginManagementService,
         Lazy<IProfileService> profileService,
-        EntryInstallationHandlerFactory factory)
+        EntryInstallationHandlerFactory factory,
+        IPluginRepository pluginRepository,
+        IWorkshopClient workshopClient)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -39,6 +47,10 @@ public class WorkshopService : IWorkshopService
         _pluginManagementService = pluginManagementService;
         _profileService = profileService;
         _factory = factory;
+        _pluginRepository = pluginRepository;
+        _workshopClient = workshopClient;
+
+        _migratedBuiltInPlugins = settingsService.GetSetting("Workshop.MigratedBuiltInPlugins", false);
     }
 
     public async Task<Stream?> GetEntryIcon(long entryId, CancellationToken cancellationToken)
@@ -130,10 +142,10 @@ public class WorkshopService : IWorkshopService
     }
 
     /// <inheritdoc />
-    public async Task<bool> ValidateWorkshopStatus(CancellationToken cancellationToken)
+    public async Task<bool> ValidateWorkshopStatus(bool navigateIfUnreachable, CancellationToken cancellationToken)
     {
         IWorkshopService.WorkshopStatus status = await GetWorkshopStatus(cancellationToken);
-        if (!status.IsReachable && !cancellationToken.IsCancellationRequested)
+        if (navigateIfUnreachable && !status.IsReachable && !cancellationToken.IsCancellationRequested)
             await _router.Navigate($"workshop/offline/{status.Message}");
         return status.IsReachable;
     }
@@ -160,27 +172,45 @@ public class WorkshopService : IWorkshopService
     /// <inheritdoc />
     public async Task<EntryInstallResult> InstallEntry(IEntrySummary entry, IRelease release, Progress<StreamProgress> progress, CancellationToken cancellationToken)
     {
-        IEntryInstallationHandler handler = _factory.CreateHandler(entry.EntryType);
-        EntryInstallResult result = await handler.InstallAsync(entry, release, progress, cancellationToken);
-        if (result.IsSuccess && result.Entry != null)
-            OnEntryInstalled?.Invoke(this, result.Entry);
-        else
-            _logger.Warning("Failed to install entry {Entry}: {Message}", entry, result.Message);
-        
-        return result;
+        _mutating = true;
+
+        try
+        {
+            IEntryInstallationHandler handler = _factory.CreateHandler(entry.EntryType);
+            EntryInstallResult result = await handler.InstallAsync(entry, release, progress, cancellationToken);
+            if (result.IsSuccess && result.Entry != null)
+                OnEntryInstalled?.Invoke(this, result.Entry);
+            else
+                _logger.Warning("Failed to install entry {Entry}: {Message}", entry, result.Message);
+
+            return result;
+        }
+        finally
+        {
+            _mutating = false;
+        }
     }
 
     /// <inheritdoc />
     public async Task<EntryUninstallResult> UninstallEntry(InstalledEntry installedEntry, CancellationToken cancellationToken)
     {
-        IEntryInstallationHandler handler = _factory.CreateHandler(installedEntry.EntryType);
-        EntryUninstallResult result = await handler.UninstallAsync(installedEntry, cancellationToken);
-        if (result.IsSuccess)
-            OnEntryUninstalled?.Invoke(this, installedEntry);
-        else
-            _logger.Warning("Failed to uninstall entry {EntryId}: {Message}", installedEntry.Id, result.Message);
+        _mutating = true;
 
-        return result;
+        try
+        {
+            IEntryInstallationHandler handler = _factory.CreateHandler(installedEntry.EntryType);
+            EntryUninstallResult result = await handler.UninstallAsync(installedEntry, cancellationToken);
+            if (result.IsSuccess)
+                OnEntryUninstalled?.Invoke(this, installedEntry);
+            else
+                _logger.Warning("Failed to uninstall entry {EntryId}: {Message}", installedEntry.Id, result.Message);
+
+            return result;
+        }
+        finally
+        {
+            _mutating = false;
+        }
     }
 
     /// <inheritdoc />
@@ -227,7 +257,7 @@ public class WorkshopService : IWorkshopService
     }
 
     /// <inheritdoc />
-    public void Initialize()
+    public async Task Initialize()
     {
         if (_initialized)
             throw new ArtemisWorkshopException("Workshop service is already initialized");
@@ -238,6 +268,7 @@ public class WorkshopService : IWorkshopService
                 Directory.CreateDirectory(Constants.WorkshopFolder);
 
             RemoveOrphanedFiles();
+            await MigrateBuiltInPlugins();
 
             _pluginManagementService.Value.AdditionalPluginDirectories.AddRange(GetInstalledEntries()
                 .Where(e => e.EntryType == EntryType.Plugin)
@@ -259,7 +290,7 @@ public class WorkshopService : IWorkshopService
     {
         if (installedEntry.AutoUpdate == autoUpdate)
             return;
-        
+
         installedEntry.AutoUpdate = autoUpdate;
         SaveInstalledEntry(installedEntry);
     }
@@ -297,8 +328,33 @@ public class WorkshopService : IWorkshopService
         }
     }
 
+    private async Task MigrateBuiltInPlugins()
+    {
+        // If already migrated, do nothing
+        if (_migratedBuiltInPlugins.Value)
+            return;
+
+        _mutating = true;
+        
+        try
+        {
+            MigratingBuildInPlugins?.Invoke(this, EventArgs.Empty);
+
+            bool migrated = await BuiltInPluginsMigrator.Migrate(this, _workshopClient, _logger, _pluginRepository);
+            _migratedBuiltInPlugins.Value = migrated;
+            _migratedBuiltInPlugins.Save();
+        }
+        finally
+        {
+            _mutating = false;
+        }
+    }
+
     private void ProfileServiceOnProfileRemoved(object? sender, ProfileConfigurationEventArgs e)
     {
+        if (_mutating)
+            return;
+
         InstalledEntry? entry = GetInstalledEntryByProfile(e.ProfileConfiguration);
         if (entry == null)
             return;
@@ -309,6 +365,9 @@ public class WorkshopService : IWorkshopService
 
     private void PluginManagementServiceOnPluginRemoved(object? sender, PluginEventArgs e)
     {
+        if (_mutating)
+            return;
+        
         InstalledEntry? entry = GetInstalledEntryByPlugin(e.Plugin);
         if (entry == null)
             return;
@@ -322,4 +381,6 @@ public class WorkshopService : IWorkshopService
     public event EventHandler<InstalledEntry>? OnEntryUninstalled;
 
     public event EventHandler<InstalledEntry>? OnEntryInstalled;
+
+    public event EventHandler? MigratingBuildInPlugins;
 }

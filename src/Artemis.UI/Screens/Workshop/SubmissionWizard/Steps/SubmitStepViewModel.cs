@@ -2,7 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using Artemis.UI.Screens.Workshop.Categories;
 using Artemis.WebClient.Workshop;
@@ -38,7 +38,7 @@ public partial class SubmitStepViewModel : SubmissionViewModel
                 IconBitmap.DisposeWith(d);
             }
 
-            Observable.FromAsync(workshopClient.GetCategories.ExecuteAsync).Subscribe(PopulateCategories).DisposeWith(d);
+            Observable.FromAsync(() => workshopClient.GetCategories.ExecuteAsync(State.EntryType)).Subscribe(PopulateCategories).DisposeWith(d);
         });
     }
     

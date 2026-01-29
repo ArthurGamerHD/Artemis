@@ -37,7 +37,7 @@ public class LayoutEntryInstallationHandler : IEntryInstallationHandler
         }
         catch (Exception e)
         {
-            return EntryInstallResult.FromFailure(e.Message);
+            return EntryInstallResult.FromException(e);
         }
 
         // Ensure there is an installed entry
@@ -59,7 +59,7 @@ public class LayoutEntryInstallationHandler : IEntryInstallationHandler
         {
             installedEntry.ApplyRelease(release);
             _workshopService.SaveInstalledEntry(installedEntry);
-            return EntryInstallResult.FromSuccess(installedEntry);
+            return EntryInstallResult.FromSuccess(installedEntry, layout);
         }
 
         // If the layout ended up being invalid yoink it out again, shoooo

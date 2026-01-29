@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -132,6 +132,6 @@ public class SidebarProfileConfigurationViewModel : ActivatableViewModelBase
 
     public bool Matches(string s)
     {
-        return s.StartsWith("profile-editor") && s.EndsWith(ProfileConfiguration.ProfileId.ToString());
+        return s.StartsWith($"profile/{ProfileConfiguration.ProfileId}");
     }
 }

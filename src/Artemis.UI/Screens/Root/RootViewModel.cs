@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -94,8 +93,7 @@ public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProv
 
         trayIconSetting.SettingChanged += (_, _) => this.RaisePropertyChanged(nameof(TrayIcon));
         Application.Current.PlatformSettings?.ColorValuesChanged += (_,_) => this.RaisePropertyChanged(nameof(TrayIcon));
-
-        Task.Run(() =>
+        Task.Run(async () =>
         {
             try
             {
@@ -105,7 +103,7 @@ public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProv
                     return;
 
                 // Workshop service goes first so it has a chance to clean up old workshop entries and introduce new ones
-                workshopService.Initialize();
+                await workshopService.Initialize();
                 // Core is initialized now that everything is ready to go
                 coreService.Initialize();
 

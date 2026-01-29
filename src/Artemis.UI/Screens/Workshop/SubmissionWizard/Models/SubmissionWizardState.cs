@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Artemis.Core;
 using Artemis.UI.Screens.Workshop.SubmissionWizard.Steps.Layout;
 using Artemis.UI.Screens.Workshop.SubmissionWizard.Steps.Plugin;
 using Artemis.UI.Screens.Workshop.SubmissionWizard.Steps.Profile;
@@ -32,10 +31,13 @@ public class SubmissionWizardState : IDisposable
     public Stream? Icon { get; set; }
     public string Summary { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public bool IsDefault { get; set; }
+    public bool IsEssential { get; set; }
+    public bool IsDeviceProvider { get; set; }
 
-    public List<long> Categories { get; set; } = new();
-    public List<string> Tags { get; set; } = new();
-    public List<ImageUploadRequest> Images { get; set; } = new();
+    public List<long> Categories { get; set; } = [];
+    public List<string> Tags { get; set; } = [];
+    public List<ImageUploadRequest> Images { get; set; } = [];
 
     public IEntrySource? EntrySource { get; set; }
     public string? Changelog { get; set; }

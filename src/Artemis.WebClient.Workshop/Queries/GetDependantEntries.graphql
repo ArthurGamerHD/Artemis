@@ -1,15 +1,10 @@
-query GetDependantEntries($entryId: Long! $skip: Int $take: Int) {
+query GetDependantEntries($entryId: Long!) {
     entries(
         where: {
             latestRelease: { dependencies: { some: { id: { eq: $entryId } } } }
         }
-        skip: $skip 
-        take: $take
         order: { createdAt: DESC }
     ) {
-        totalCount
-        items {
-            ...entrySummary
-        }
+        ...entrySummary
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -15,11 +16,8 @@ using Artemis.UI.Screens.ProfileEditor.StatusBar;
 using Artemis.UI.Screens.ProfileEditor.VisualEditor;
 using Artemis.UI.Shared;
 using Artemis.UI.Shared.Routing;
-using Artemis.UI.Shared.Services;
 using Artemis.UI.Shared.Services.MainWindow;
 using Artemis.UI.Shared.Services.ProfileEditor;
-using Artemis.WebClient.Workshop.Models;
-using Artemis.WebClient.Workshop.Services;
 using DynamicData;
 using DynamicData.Binding;
 using PropertyChanged.SourceGenerator;
@@ -27,14 +25,12 @@ using ReactiveUI;
 
 namespace Artemis.UI.Screens.ProfileEditor;
 
-public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewModelParameters>, IMainScreenViewModel
+public partial class ProfileEditorViewModel : RoutableScreen<ProfileViewModelParameters>, IMainScreenViewModel
 {
     private readonly IProfileEditorService _profileEditorService;
     private readonly IProfileService _profileService;
     private readonly ISettingsService _settingsService;
     private readonly IMainWindowService _mainWindowService;
-    private readonly IWorkshopService _workshopService;
-    private readonly IWindowService _windowService;
     private readonly SourceList<IToolViewModel> _tools;
     private ObservableAsPropertyHelper<ProfileEditorHistory?>? _history;
     private ObservableAsPropertyHelper<bool>? _suspendedEditing;
@@ -53,16 +49,12 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
         StatusBarViewModel statusBarViewModel,
         IEnumerable<IToolViewModel> toolViewModels,
         IMainWindowService mainWindowService,
-        IInputService inputService,
-        IWorkshopService workshopService,
-        IWindowService windowService)
+        IInputService inputService)
     {
         _profileService = profileService;
         _profileEditorService = profileEditorService;
         _settingsService = settingsService;
         _mainWindowService = mainWindowService;
-        _workshopService = workshopService;
-        _windowService = windowService;
 
         _tools = new SourceList<IToolViewModel>();
         _tools.AddRange(toolViewModels);
@@ -75,6 +67,7 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
         Tools = tools;
         visualEditorViewModel.SetTools(_tools);
 
+        ParameterSource = ParameterSource.Route;
         StatusBarViewModel = statusBarViewModel;
         VisualEditorViewModel = visualEditorViewModel;
         ProfileTreeViewModel = profileTreeViewModel;
@@ -193,7 +186,7 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
     #region Overrides of RoutableScreen<object,ProfileEditorViewModelParameters>
 
     /// <inheritdoc />
-    public override async Task OnNavigating(ProfileEditorViewModelParameters parameters, NavigationArguments args, CancellationToken cancellationToken)
+    public override async Task OnNavigating(ProfileViewModelParameters parameters, NavigationArguments args, CancellationToken cancellationToken)
     {
         ProfileConfiguration? profileConfiguration = _profileService.ProfileCategories.SelectMany(c => c.ProfileConfigurations).FirstOrDefault(c => c.ProfileId == parameters.ProfileId);
 
@@ -204,23 +197,6 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
             return;
         }
 
-        // If the profile is from the workshop, warn the user that auto-updates will be disabled
-        InstalledEntry? workshopEntry = _workshopService.GetInstalledEntryByProfile(profileConfiguration);
-        if (workshopEntry != null && workshopEntry.AutoUpdate)
-        {
-            bool confirmed = await _windowService.ShowConfirmContentDialog(
-                "Editing a workshop profile",
-                "You are about to edit a profile from the workshop, to preserve your changes auto-updating will be disabled.",
-                "Disable auto-update");
-            if (confirmed)
-                _workshopService.SetAutoUpdate(workshopEntry, false);
-            else
-            {
-                args.Cancel();
-                return;
-            }
-        }
-
         await _profileEditorService.ChangeCurrentProfileConfiguration(profileConfiguration);
         ProfileConfiguration = profileConfiguration;
     }
@@ -228,7 +204,7 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
     /// <inheritdoc />
     public override async Task OnClosing(NavigationArguments args)
     {
-        if (!args.Path.StartsWith("profile-editor"))
+        if (!args.Path.StartsWith("profile"))
         {
             ProfileConfiguration = null;
             await _profileEditorService.ChangeCurrentProfileConfiguration(null);
@@ -236,9 +212,4 @@ public partial class ProfileEditorViewModel : RoutableScreen<ProfileEditorViewMo
     }
 
     #endregion
-}
-
-public class ProfileEditorViewModelParameters
-{
-    public Guid ProfileId { get; set; }
 }

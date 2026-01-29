@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -65,7 +65,7 @@ public partial class SidebarCategoryViewModel : ActivatableViewModelBase
             // Navigate on selection change
             this.WhenAnyValue(vm => vm.SelectedProfileConfiguration)
                 .WhereNotNull()
-                .Subscribe(s => _router.Navigate($"profile-editor/{s.ProfileConfiguration.ProfileId}", new RouterNavigationOptions {IgnoreOnPartialMatch = true, RecycleScreens = false}))
+                .Subscribe(s => _router.Navigate($"profile/{s.ProfileConfiguration.ProfileId}/editor", new RouterNavigationOptions {IgnoreOnPartialMatch = true, RecycleScreens = false}))
                 .DisposeWith(d);
 
             _router.CurrentPath.WhereNotNull().Subscribe(r => SelectedProfileConfiguration = ProfileConfigurations.FirstOrDefault(c => c.Matches(r))).DisposeWith(d);

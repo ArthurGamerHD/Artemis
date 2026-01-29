@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -79,11 +79,6 @@ public partial class ProfileTreeViewModel : TreeItemViewModel
 
     public override bool SupportsChildren => true;
 
-    public void UpdateCanPaste()
-    {
-        throw new NotImplementedException();
-    }
-
     protected override Task ExecuteDuplicate()
     {
         throw new NotSupportedException();
@@ -121,7 +116,7 @@ public partial class ProfileTreeViewModel : TreeItemViewModel
 
     private List<TreeItemViewModel> GetAllTreeItems(ObservableCollection<TreeItemViewModel> treeItems)
     {
-        List<TreeItemViewModel> result = new();
+        List<TreeItemViewModel> result = [];
         foreach (TreeItemViewModel treeItemViewModel in treeItems)
         {
             result.Add(treeItemViewModel);
