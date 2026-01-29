@@ -1,4 +1,5 @@
-using ReactiveUI.Avalonia;
+using Avalonia.Controls;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.EntryReleases;
 

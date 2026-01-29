@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using Artemis.Core;
 using Artemis.UI.Shared;
 using Avalonia.Threading;
@@ -6,8 +7,9 @@ using ReactiveUI;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 using System.IO;
+using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
+using System.Text;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
 

@@ -4,9 +4,9 @@ internal class DeviceEntity
 {
     public DeviceEntity()
     {
-        InputIdentifiers = [];
-        InputMappings = [];
-        Categories = [];
+        InputIdentifiers = new List<DeviceInputIdentifierEntity>();
+        InputMappings = new List<InputMappingEntity>();
+        Categories = new List<int>();
     }
 
     public string Id { get; set; } = string.Empty;

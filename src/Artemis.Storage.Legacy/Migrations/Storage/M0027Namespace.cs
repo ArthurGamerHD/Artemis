@@ -9,7 +9,7 @@ internal class M0027Namespace : IStorageMigration
     public void Apply(LiteRepository repository)
     {
         ILiteCollection<BsonDocument> collection = repository.Database.GetCollection("ProfileEntity");
-        List<BsonDocument> profilesToUpdate = [];
+        List<BsonDocument> profilesToUpdate = new();
 
         foreach (BsonDocument profileBson in collection.FindAll())
         {

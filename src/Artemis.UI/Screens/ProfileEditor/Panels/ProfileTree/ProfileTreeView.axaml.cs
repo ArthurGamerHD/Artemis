@@ -7,7 +7,7 @@ using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
 
 namespace Artemis.UI.Screens.ProfileEditor.ProfileTree;

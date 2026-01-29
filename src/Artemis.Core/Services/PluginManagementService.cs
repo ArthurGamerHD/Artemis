@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core.DeviceProviders;
 using Artemis.Core.DryIoc;
+using Artemis.Storage.Entities.General;
 using Artemis.Storage.Entities.Plugins;
 using Artemis.Storage.Entities.Surface;
 using Artemis.Storage.Repositories.Interfaces;
@@ -28,7 +29,6 @@ internal class PluginManagementService : IPluginManagementService
     private readonly IContainer _container;
     private readonly ILogger _logger;
     private readonly IPluginRepository _pluginRepository;
-    private readonly List<PluginInfo> _pluginInfos;
     private readonly List<Plugin> _plugins;
     private FileSystemWatcher? _hotReloadWatcher;
     private bool _disposed;
@@ -40,29 +40,126 @@ internal class PluginManagementService : IPluginManagementService
         _logger = logger;
         _pluginRepository = pluginRepository;
         _deviceRepository = deviceRepository;
-        _pluginInfos = [];
-        _plugins = [];
+        _plugins = new List<Plugin>();
     }
 
-    public List<DirectoryInfo> AdditionalPluginDirectories { get; } = [];
+    public List<DirectoryInfo> AdditionalPluginDirectories { get; } = new();
 
     public bool LoadingPlugins { get; private set; }
-    
-    public bool LoadedPlugins { get; private set; }
 
-    public List<PluginInfo> GetAllPluginInfo()
+
+    #region Built in plugins
+
+    public void CopyBuiltInPlugins()
     {
-        lock (_pluginInfos)
+        OnCopyingBuildInPlugins();
+        DirectoryInfo pluginDirectory = new(Constants.PluginsFolder);
+
+        if (Directory.Exists(Path.Combine(pluginDirectory.FullName, "Artemis.Plugins.Modules.Overlay-29e3ff97")))
+            Directory.Delete(Path.Combine(pluginDirectory.FullName, "Artemis.Plugins.Modules.Overlay-29e3ff97"), true);
+        if (Directory.Exists(Path.Combine(pluginDirectory.FullName, "Artemis.Plugins.DataModelExpansions.TestData-ab41d601")))
+            Directory.Delete(Path.Combine(pluginDirectory.FullName, "Artemis.Plugins.DataModelExpansions.TestData-ab41d601"), true);
+
+        // Iterate built-in plugins
+        DirectoryInfo builtInPluginDirectory = new(Path.Combine(Constants.ApplicationFolder, "Plugins"));
+        if (!builtInPluginDirectory.Exists)
         {
-            return [.._pluginInfos];
+            _logger.Warning("No built-in plugins found at {pluginDir}, skipping CopyBuiltInPlugins", builtInPluginDirectory.FullName);
+            return;
+        }
+
+
+        foreach (FileInfo zipFile in builtInPluginDirectory.EnumerateFiles("*.zip"))
+        {
+            try
+            {
+                ExtractBuiltInPlugin(zipFile, pluginDirectory);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Failed to copy built-in plugin from {ZipFile}", zipFile.FullName);
+            }
         }
     }
+
+    private void ExtractBuiltInPlugin(FileInfo zipFile, DirectoryInfo pluginDirectory)
+    {
+        // Find the metadata file in the zip
+        using ZipArchive archive = ZipFile.OpenRead(zipFile.FullName);
+
+        ZipArchiveEntry? metaDataFileEntry = archive.Entries.FirstOrDefault(e => e.Name == "plugin.json");
+        if (metaDataFileEntry == null)
+            throw new ArtemisPluginException("Couldn't find a plugin.json in " + zipFile.FullName);
+
+        using StreamReader reader = new(metaDataFileEntry.Open());
+        PluginInfo builtInPluginInfo = CoreJson.Deserialize<PluginInfo>(reader.ReadToEnd())!;
+        string preferred = builtInPluginInfo.PreferredPluginDirectory;
+
+        // Find the matching plugin in the plugin folder
+        DirectoryInfo? match = pluginDirectory.EnumerateDirectories().FirstOrDefault(d => d.Name == preferred);
+        if (match == null)
+        {
+            CopyBuiltInPlugin(archive, preferred);
+        }
+        else
+        {
+            string metadataFile = Path.Combine(match.FullName, "plugin.json");
+            if (!File.Exists(metadataFile))
+            {
+                _logger.Debug("Copying missing built-in plugin {builtInPluginInfo}", builtInPluginInfo);
+                CopyBuiltInPlugin(archive, preferred);
+            }
+            else if (metaDataFileEntry.LastWriteTime > File.GetLastWriteTime(metadataFile))
+            {
+                try
+                {
+                    _logger.Debug("Copying updated built-in plugin {builtInPluginInfo}", builtInPluginInfo);
+                    CopyBuiltInPlugin(archive, preferred);
+                }
+                catch (Exception e)
+                {
+                    throw new ArtemisPluginException($"Failed to install built-in plugin: {e.Message}", e);
+                }
+            }
+        }
+    }
+
+    private void CopyBuiltInPlugin(ZipArchive zipArchive, string targetDirectory)
+    {
+        ZipArchiveEntry metaDataFileEntry = zipArchive.Entries.First(e => e.Name == "plugin.json");
+        DirectoryInfo pluginDirectory = new(Path.Combine(Constants.PluginsFolder, targetDirectory));
+        bool createLockFile = File.Exists(Path.Combine(pluginDirectory.FullName, "artemis.lock"));
+
+        // Remove the old directory if it exists
+        if (Directory.Exists(pluginDirectory.FullName))
+            pluginDirectory.Delete(true);
+
+        // Extract everything in the same archive directory to the unique plugin directory
+        Utilities.CreateAccessibleDirectory(pluginDirectory.FullName);
+        string metaDataDirectory = metaDataFileEntry.FullName.Replace(metaDataFileEntry.Name, "");
+        foreach (ZipArchiveEntry zipArchiveEntry in zipArchive.Entries)
+        {
+            if (zipArchiveEntry.FullName.StartsWith(metaDataDirectory) && !zipArchiveEntry.FullName.EndsWith("/"))
+            {
+                string target = Path.Combine(pluginDirectory.FullName, zipArchiveEntry.FullName.Remove(0, metaDataDirectory.Length));
+                // Create folders
+                Utilities.CreateAccessibleDirectory(Path.GetDirectoryName(target)!);
+                // Extract files
+                zipArchiveEntry.ExtractToFile(target);
+            }
+        }
+
+        if (createLockFile)
+            File.Create(Path.Combine(pluginDirectory.FullName, "artemis.lock")).Close();
+    }
+
+    #endregion
 
     public List<Plugin> GetAllPlugins()
     {
         lock (_plugins)
         {
-            return [.._plugins];
+            return new List<Plugin>(_plugins);
         }
     }
 
@@ -231,9 +328,7 @@ internal class PluginManagementService : IPluginManagementService
         // ReSharper restore InconsistentlySynchronizedField
 
         LoadingPlugins = false;
-        LoadedPlugins = true;
     }
-
 
     public void UnloadPlugins()
     {
@@ -273,13 +368,6 @@ internal class PluginManagementService : IPluginManagementService
             if (_plugins.Any(p => p.Guid == pluginInfo.Guid))
                 throw new ArtemisCoreException($"Cannot load plugin {pluginInfo} because it is using a GUID already used by another plugin");
         }
-        
-        // There may be info on a plugin that previously failed to load, remove that
-        lock (_pluginInfos)
-        {
-            _pluginInfos.RemoveAll(i => i.Guid == pluginInfo.Guid);
-            _pluginInfos.Add(pluginInfo);
-        }
 
         // Load the entity and fall back on creating a new one
         PluginEntity? entity = _pluginRepository.GetPluginByPluginGuid(pluginInfo.Guid);
@@ -318,7 +406,6 @@ internal class PluginManagementService : IPluginManagementService
         }
         catch (Exception e)
         {
-            pluginInfo.LoadException = e;
             throw new ArtemisPluginException(plugin, "Failed to load the plugins assembly", e);
         }
 
@@ -330,7 +417,6 @@ internal class PluginManagementService : IPluginManagementService
         }
         catch (ReflectionTypeLoadException e)
         {
-            pluginInfo.LoadException = e;
             throw new ArtemisPluginException(
                 plugin,
                 "Failed to initialize the plugin assembly",
@@ -490,10 +576,6 @@ internal class PluginManagementService : IPluginManagementService
         }
 
         plugin.Dispose();
-        lock (_pluginInfos)
-        {
-            _pluginInfos.Remove(plugin.Info);
-        }
         lock (_plugins)
         {
             _plugins.Remove(plugin);
@@ -604,7 +686,7 @@ internal class PluginManagementService : IPluginManagementService
 
         if (removeSettings)
             RemovePluginSettings(plugin);
-
+        
         OnPluginRemoved(new PluginEventArgs(plugin));
     }
 
@@ -811,7 +893,7 @@ internal class PluginManagementService : IPluginManagementService
     {
         PluginDisabled?.Invoke(this, e);
     }
-
+    
     protected virtual void OnPluginRemoved(PluginEventArgs e)
     {
         PluginRemoved?.Invoke(this, e);

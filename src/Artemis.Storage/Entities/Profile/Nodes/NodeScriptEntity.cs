@@ -6,8 +6,8 @@ public class NodeScriptEntity
 {
     public NodeScriptEntity()
     {
-        Nodes = [];
-        Connections = [];
+        Nodes = new List<NodeEntity>();
+        Connections = new List<NodeConnectionEntity>();
     }
 
     public string Name { get; set; } = string.Empty;

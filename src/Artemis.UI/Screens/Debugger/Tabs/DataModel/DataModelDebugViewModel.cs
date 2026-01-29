@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using Artemis.Core;
 using Artemis.Core.Modules;
@@ -36,7 +35,7 @@ public partial class DataModelDebugViewModel : ActivatableViewModelBase
         _updateTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(40), DispatcherPriority.Background, (_, _) => Update());
 
         DisplayName = "Data Model";
-        Modules = [];
+        Modules = new ObservableCollection<Module>();
 
         this.WhenActivated(disposables =>
         {
@@ -114,7 +113,7 @@ public partial class DataModelDebugViewModel : ActivatableViewModelBase
     private void GetDataModel()
     {
         MainDataModel = SelectedModule != null
-            ? _dataModelUIService.GetPluginDataModelVisualization([SelectedModule], false)
+            ? _dataModelUIService.GetPluginDataModelVisualization(new List<Module> {SelectedModule}, false)
             : _dataModelUIService.GetMainDataModelVisualization();
     }
 

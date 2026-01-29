@@ -16,7 +16,7 @@ public abstract class LayerEffectProvider : PluginFeature
     /// </summary>
     protected LayerEffectProvider()
     {
-        _layerEffectDescriptors = [];
+        _layerEffectDescriptors = new List<LayerEffectDescriptor>();
         LayerEffectDescriptors = new ReadOnlyCollection<LayerEffectDescriptor>(_layerEffectDescriptors);
         Disabled += OnDisabled;
     }

@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using System.Text;
+using SkiaSharp;
 
 namespace Artemis.Core.ColorScience;
 

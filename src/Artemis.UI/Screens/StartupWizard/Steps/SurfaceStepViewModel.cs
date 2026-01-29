@@ -1,5 +1,11 @@
 ﻿using System.Reactive;
+using Artemis.UI.Shared;
 using ReactiveUI;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Artemis.Core;
+using Artemis.Core.DeviceProviders;
 using Artemis.Core.Services;
 
 namespace Artemis.UI.Screens.StartupWizard.Steps;
@@ -21,7 +27,9 @@ public class SurfaceStepViewModel : WizardStepViewModel
 
     private void ExecuteSelectLayout(string layout)
     {
-        _deviceService.AutoArrangeDevices(layout == "left");
+        // TODO: Implement the layout
+        _deviceService.AutoArrangeDevices();
+
         Wizard.ChangeScreen<SettingsStepViewModel>();
     }
 }

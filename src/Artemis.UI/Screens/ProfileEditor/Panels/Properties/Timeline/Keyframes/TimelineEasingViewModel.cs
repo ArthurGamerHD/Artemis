@@ -20,7 +20,7 @@ public class TimelineEasingViewModel : ViewModelBase
         SelectEasingFunction = selectEasingFunction;
         Description = easingFunction.Humanize();
 
-        EasingPoints = [];
+        EasingPoints = new List<Point>();
         for (int i = 1; i <= 10; i++)
         {
             int x = i;

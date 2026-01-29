@@ -8,6 +8,7 @@ using Artemis.Storage.Entities.Profile;
 using Artemis.Storage.Entities.Surface;
 using Artemis.Storage.Entities.Workshop;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Artemis.Storage;
 

@@ -242,7 +242,7 @@ public class DataModelPathSegment : IDisposable
             accessorExpression = Expression.Call(
                 expression,
                 nameof(DataModel.GetDynamicChildValue),
-                _dynamicDataModelType != null ? [_dynamicDataModelType] : null,
+                _dynamicDataModelType != null ? new[] {_dynamicDataModelType} : null,
                 Expression.Constant(Identifier)
             );
 

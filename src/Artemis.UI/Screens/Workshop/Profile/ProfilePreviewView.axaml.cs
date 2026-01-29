@@ -5,7 +5,7 @@ using Avalonia;
 using Avalonia.Controls.PanAndZoom;
 using Avalonia.Input;
 using Avalonia.Media;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.Profile;

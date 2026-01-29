@@ -1,0 +1,36 @@
+name: Master - DocFX
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  docfx:
+    name: Build DocFX Documentation
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Setup DocFX
+        run: dotnet tool update -g docfx
+      - name: Build Core
+        run: dotnet build src/Artemis.Core/Artemis.Core.csproj
+      - name: Build UI.Shared
+        run: dotnet build src/Artemis.UI.Shared/Artemis.UI.Shared.csproj
+      - name: Build DocFX
+        run: docfx docfx/docfx_project/docfx.json
+      - name: Upload to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: www360.your-server.de
+          protocol: ftps
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: docfx/docfx_project/_site/
+          server-dir: /docs/

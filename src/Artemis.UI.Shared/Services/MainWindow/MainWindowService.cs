@@ -1,4 +1,5 @@
 ﻿using System;
+using ReactiveUI;
 
 namespace Artemis.UI.Shared.Services.MainWindow;
 

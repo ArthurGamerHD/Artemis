@@ -1,5 +1,6 @@
 using Artemis.UI.Shared;
 using Avalonia;
+using Avalonia.Markup.Xaml;
 
 namespace Artemis.UI.Screens.VisualScripting;
 

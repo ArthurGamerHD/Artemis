@@ -23,8 +23,7 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
     private readonly IAuthenticationRepository _authenticationRepository;
     private readonly SemaphoreSlim _authLock = new(1, 1);
     private readonly SourceList<Claim> _claims;
-    private readonly SourceList<string> _roles;
-    
+
     private readonly IDiscoveryCache _discoveryCache;
     private readonly ILogger _logger;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -42,10 +41,7 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
 
         _claims = new SourceList<Claim>();
         _claims.Connect().Bind(out ReadOnlyObservableCollection<Claim> claims).Subscribe();
-        _roles = new SourceList<string>();
-        _roles.Connect().Bind(out ReadOnlyObservableCollection<string> roles).Subscribe();
         Claims = claims;
-        Roles = roles;
     }
 
     private async Task<DiscoveryDocumentResponse> GetDiscovery()
@@ -71,11 +67,6 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
         {
             c.Clear();
             c.AddRange(token.Claims);
-        });
-        _roles.Edit(r =>
-        {
-            r.Clear();
-            r.AddRange(_claims.Items.Where(c => c.Type == JwtClaimTypes.Role).Select(c => c.Value));
         });
 
         _isLoggedInSubject.OnNext(true);
@@ -127,10 +118,7 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
 
     /// <inheritdoc />
     public ReadOnlyObservableCollection<Claim> Claims { get; }
-    
-    /// <inheritdoc />
-    public ReadOnlyObservableCollection<string> Roles { get; }
-    
+
     /// <inheritdoc />
     public IObservable<Claim?> GetClaim(string type)
     {
@@ -192,15 +180,13 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
     {
         await _authLock.WaitAsync(cancellationToken);
 
-        // Start a HTTP listener, this port could be in use but chances are very slim
-        // IdentityServer only accepts these two redirect URLs
-        string redirectUri = Constants.StartupArguments.Contains("--alt-login-callback") ? "http://localhost:56789" : "http://localhost:57461";
-        
         try
         {
             if (_isLoggedInSubject.Value)
                 return;
-            
+
+            // Start a HTTP listener, this port could be in use but chances are very slim
+            string redirectUri = "http://localhost:57461";
             using HttpListener listener = new();
             listener.Prefixes.Add(redirectUri + "/");
             listener.Start();
@@ -263,11 +249,7 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
         }
         catch (HttpListenerException e)
         {
-            // I've seen the Nvidia app do this after a login. What are the odds...
-            if (e.ErrorCode == 32)
-                throw new ArtemisWebClientException($"HTTP listener for login callback failed because another application is already listening on '{redirectUri}', please close that application and try again", e);
-            else
-                throw new ArtemisWebClientException($"HTTP listener for login callback failed with error code {e.ErrorCode}", e);
+            throw new ArtemisWebClientException($"HTTP listener for login callback failed with error code {e.ErrorCode}", e);
         }
         finally
         {
@@ -290,7 +272,6 @@ internal class AuthenticationService : CorePropertyChanged, IAuthenticationServi
 
         _token = null;
         _claims.Clear();
-        _roles.Clear();
         SetStoredRefreshToken(null);
         _isLoggedInSubject.OnNext(false);
     }

@@ -17,7 +17,7 @@ public class LinuxInputProvider : InputProvider
     {
         _logger = logger;
         _inputService = inputService;
-        _readers = [];
+        _readers = new List<LinuxInputDeviceReader>();
 
         foreach (LinuxInputDevice deviceDefinition in LinuxInputDeviceFinder.Find())
         {

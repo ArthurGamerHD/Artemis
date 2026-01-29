@@ -27,7 +27,7 @@ public class PasteKeyframes : IProfileEditorCommand
 
     private List<ILayerPropertyKeyframe> CreateKeyframes()
     {
-        List<ILayerPropertyKeyframe> result = [];
+        List<ILayerPropertyKeyframe> result = new();
 
         // Delegate creating the keyframes using the model to the appropriate layer properties
         List<ILayerProperty> layerProperties = _profileElement.GetAllLayerProperties();

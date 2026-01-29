@@ -1,10 +1,11 @@
 using System;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Artemis.Core;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.ProfileEditor.Properties.Tree;

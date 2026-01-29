@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Artemis.UI.Shared;
 using Artemis.UI.Shared.Routing;
 using Artemis.WebClient.Workshop;

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Artemis.UI.Shared.Routing;
 
@@ -13,7 +14,7 @@ public class NavigationArguments
         Options = options;
         Path = path;
         RouteParameters = routeParameters;
-        SegmentParameters = [];
+        SegmentParameters = Array.Empty<object>();
     }
 
     /// <summary>

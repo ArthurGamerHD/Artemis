@@ -17,7 +17,7 @@ public class ProfileEditorCommandScope : IDisposable
     {
         Name = name;
         _profileEditorService = profileEditorService;
-        _commands = [];
+        _commands = new List<IProfileEditorCommand>();
     }
 
     /// <summary>

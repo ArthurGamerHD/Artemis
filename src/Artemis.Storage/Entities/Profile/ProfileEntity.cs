@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Artemis.Storage.Entities.General;
 
 namespace Artemis.Storage.Entities.Profile;
 
@@ -8,8 +9,8 @@ public class ProfileEntity
 {
     public ProfileEntity()
     {
-        Folders = [];
-        Layers = [];
+        Folders = new List<FolderEntity>();
+        Layers = new List<LayerEntity>();
     }
 
     public Guid Id { get; set; }

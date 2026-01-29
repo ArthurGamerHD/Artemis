@@ -40,11 +40,7 @@ public static class Constants
     /// <summary>
     ///     The full path to the Artemis data folder
     /// </summary>
-#if DEBUG
-    public static readonly string DataFolder = Path.Combine(BaseFolder, "Artemis-dev");
-#else
     public static readonly string DataFolder = Path.Combine(BaseFolder, "Artemis");
-#endif
 
     /// <summary>
     ///     The full path to the Artemis logs folder
@@ -70,7 +66,13 @@ public static class Constants
     ///     The full path to the Artemis user layouts folder
     /// </summary>
     public static readonly string WorkshopFolder = Path.Combine(DataFolder, "workshop");
-    
+
+    /// <summary>
+    ///     The current API version for plugins
+    /// </summary>
+    public static readonly int PluginApiVersion = int.Parse(CoreAssembly.GetCustomAttributes<AssemblyMetadataAttribute>().FirstOrDefault(a => a.Key == "PluginApiVersion")?.Value ??
+                                                            throw new InvalidOperationException("Cannot find PluginApiVersion metadata in assembly"));
+
     /// <summary>
     ///     The current version of the application
     /// </summary>
@@ -138,11 +140,6 @@ public static class Constants
     ///     Gets the startup arguments provided to the application
     /// </summary>
     public static ReadOnlyCollection<string> StartupArguments { get; set; } = null!;
-
-    public static string? GetStartupRoute()
-    {
-        return StartupArguments.FirstOrDefault(a => a.StartsWith("--route=artemis://"))?.Split("--route=artemis://")[1];
-    }
     
     internal static readonly CorePluginFeature CorePluginFeature = new() {Plugin = CorePlugin, Profiler = CorePlugin.GetProfiler("Feature - Core")};
     internal static readonly EffectPlaceholderPlugin EffectPlaceholderPlugin = new() {Plugin = CorePlugin, Profiler = CorePlugin.GetProfiler("Feature - Effect Placeholder")};

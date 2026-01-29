@@ -1,11 +1,14 @@
 using System;
+using System.IO;
 using System.Linq;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Artemis.Core;
 using Artemis.UI.Shared.Routing;
 using Artemis.UI.Shared.Services;
+using Artemis.UI.Shared.Utilities;
 using Artemis.WebClient.Workshop;
 using Artemis.WebClient.Workshop.Exceptions;
 using Artemis.WebClient.Workshop.Handlers.UploadHandlers;
@@ -102,14 +105,7 @@ public partial class UploadStepViewModel : SubmissionViewModel
             Summary = State.Summary,
             Description = State.Description,
             Categories = State.Categories,
-            Tags = State.Tags,
-            DefaultEntryInfo = State.IsDefault
-                ? new DefaultEntryInfoInput
-                {
-                    IsEssential = State.IsEssential,
-                    IsDeviceProvider = State.IsDeviceProvider
-                }
-                : null
+            Tags = State.Tags
         }, cancellationToken);
 
         result.EnsureNoErrors();

@@ -8,8 +8,8 @@ namespace Artemis.Core;
 
 internal class NodeTypeStore
 {
-    private static readonly List<NodeTypeRegistration> Registrations = [];
-    private static readonly List<TypeColorRegistration> ColorRegistrations = [];
+    private static readonly List<NodeTypeRegistration> Registrations = new();
+    private static readonly List<TypeColorRegistration> ColorRegistrations = new();
 
     public static NodeTypeRegistration Add(NodeData nodeData)
     {
@@ -85,7 +85,7 @@ internal class NodeTypeStore
     {
         lock (ColorRegistrations)
         {
-            return [..ColorRegistrations];
+            return new List<TypeColorRegistration>(ColorRegistrations);
         }
     }
 

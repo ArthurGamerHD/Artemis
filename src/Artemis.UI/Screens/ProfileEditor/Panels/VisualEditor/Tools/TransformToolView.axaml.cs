@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using Artemis.Core;
 using Artemis.UI.Shared.Extensions;
 using Avalonia;
@@ -10,9 +10,10 @@ using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Transformation;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.Skia;
 using Avalonia.VisualTree;
 using ReactiveUI;
@@ -22,7 +23,7 @@ namespace Artemis.UI.Screens.ProfileEditor.VisualEditor.Tools;
 
 public partial class TransformToolView : ReactiveUserControl<TransformToolViewModel>
 {
-    private readonly List<Control> _handles = [];
+    private readonly List<Control> _handles = new();
     private SKPoint _dragOffset;
     private ZoomBorder? _zoomBorder;
 

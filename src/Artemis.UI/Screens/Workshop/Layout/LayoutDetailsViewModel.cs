@@ -1,4 +1,5 @@
 using System;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.UI.Screens.Workshop.Entries.Details;
@@ -7,6 +8,7 @@ using Artemis.UI.Screens.Workshop.Parameters;
 using Artemis.UI.Shared.Routing;
 using Artemis.WebClient.Workshop;
 using PropertyChanged.SourceGenerator;
+using ReactiveUI;
 using StrawberryShake;
 
 namespace Artemis.UI.Screens.Workshop.Layout;

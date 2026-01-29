@@ -6,9 +6,9 @@ internal class ProfileEntity
 {
     public ProfileEntity()
     {
-        Folders = [];
-        Layers = [];
-        ScriptConfigurations = [];
+        Folders = new List<FolderEntity>();
+        Layers = new List<LayerEntity>();
+        ScriptConfigurations = new List<ScriptConfigurationEntity>();
     }
 
     public Guid Id { get; set; }

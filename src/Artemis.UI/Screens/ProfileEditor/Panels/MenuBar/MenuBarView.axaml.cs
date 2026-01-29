@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
 
 namespace Artemis.UI.Screens.ProfileEditor.MenuBar;

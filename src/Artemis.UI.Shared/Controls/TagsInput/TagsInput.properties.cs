@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 
 namespace Artemis.UI.Shared.TagsInput;
 
@@ -10,7 +11,7 @@ public partial class TagsInput : TemplatedControl
     ///     Defines the <see cref="Tags" /> property
     /// </summary>
     public static readonly StyledProperty<ObservableCollection<string>> TagsProperty =
-        AvaloniaProperty.Register<TagsInput, ObservableCollection<string>>(nameof(Tags), []);
+        AvaloniaProperty.Register<TagsInput, ObservableCollection<string>>(nameof(Tags), new ObservableCollection<string>());
 
     /// <summary>
     ///     Gets or sets the selected tags.

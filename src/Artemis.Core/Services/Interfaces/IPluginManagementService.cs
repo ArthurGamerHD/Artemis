@@ -23,9 +23,10 @@ public interface IPluginManagementService : IArtemisService, IDisposable
     bool LoadingPlugins { get; }
 
     /// <summary>
-    ///     Indicates whether or not plugins are currently loaded
+    ///     Copy built-in plugins from the executable directory to the plugins directory if the version is higher
+    ///     (higher or equal if compiled as debug)
     /// </summary>
-    bool LoadedPlugins { get; }
+    void CopyBuiltInPlugins();
 
     /// <summary>
     ///     Loads all installed plugins. If plugins already loaded this will reload them all
@@ -108,13 +109,7 @@ public interface IPluginManagementService : IArtemisService, IDisposable
     void DisablePluginFeature(PluginFeature pluginFeature, bool saveState);
 
     /// <summary>
-    /// Gets the plugin info of all plugins, regardless of whether they are currently loaded
-    /// </summary>
-    /// <returns>A list containing all the plugin info</returns>
-    List<PluginInfo> GetAllPluginInfo();
-
-    /// <summary>
-    ///     Returns a list of all loaded plugins
+    ///     Gets the plugin info of all loaded plugins
     /// </summary>
     /// <returns>A list containing all the plugin info</returns>
     List<Plugin> GetAllPlugins();
@@ -157,6 +152,11 @@ public interface IPluginManagementService : IArtemisService, IDisposable
     DeviceProvider GetDeviceProviderByDevice(IRGBDevice device);
 
     /// <summary>
+    ///     Occurs when built-in plugins are being loaded
+    /// </summary>
+    event EventHandler CopyingBuildInPlugins;
+
+    /// <summary>
     ///     Occurs when a plugin has started loading
     /// </summary>
     event EventHandler<PluginEventArgs> PluginLoading;
@@ -189,7 +189,7 @@ public interface IPluginManagementService : IArtemisService, IDisposable
     /// <summary>
     ///     Occurs when a plugin is removed
     /// </summary>
-    event EventHandler<PluginEventArgs> PluginRemoved;
+    event EventHandler<PluginEventArgs> PluginRemoved; 
 
     /// <summary>
     ///     Occurs when a plugin feature is being enabled

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -13,7 +13,7 @@ using Artemis.UI.Shared.Routing;
 using Artemis.UI.Shared.Services;
 using Artemis.UI.Shared.Services.Builders;
 using Artemis.WebClient.Updating;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using DynamicData;
 using DynamicData.Binding;
 using PropertyChanged.SourceGenerator;

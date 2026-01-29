@@ -10,7 +10,7 @@ namespace Artemis.UI.Screens.Workshop.SubmissionWizard.Steps;
 
 public partial class ChangelogStepViewModel : SubmissionViewModel
 {
-    [Notify] private string _changelog = string.Empty;
+    [Notify] private string? _changelog;
 
     public ChangelogStepViewModel()
     {
@@ -18,7 +18,7 @@ public partial class ChangelogStepViewModel : SubmissionViewModel
         Continue = ReactiveCommand.Create(ExecuteContinue);
         ContinueText = "Submit";
 
-        this.WhenActivated((CompositeDisposable _) => Changelog = State.Changelog ?? string.Empty);
+        this.WhenActivated((CompositeDisposable _) => Changelog = State.Changelog);
     }
 
     private void ExecuteContinue()
@@ -29,7 +29,7 @@ public partial class ChangelogStepViewModel : SubmissionViewModel
 
     private void ExecuteGoBack()
     {
-        State.Changelog = string.IsNullOrWhiteSpace(Changelog) ? null : Changelog;
+        State.Changelog = Changelog;
         if (State.EntryType == EntryType.Layout)
             State.ChangeScreen<LayoutInfoStepViewModel>();
         else if (State.EntryType == EntryType.Plugin)

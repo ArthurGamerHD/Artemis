@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Artemis.Core;
 using Artemis.Core.Services;

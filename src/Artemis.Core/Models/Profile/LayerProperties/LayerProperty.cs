@@ -44,7 +44,7 @@ public class LayerProperty<T> : CorePropertyChanged, ILayerProperty
         else
             _baseValue = default!;
 
-        _keyframes = [];
+        _keyframes = new List<LayerPropertyKeyframe<T>>();
         Keyframes = new ReadOnlyCollection<LayerPropertyKeyframe<T>>(_keyframes);
     }
 

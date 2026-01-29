@@ -14,9 +14,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using DryIoc;
-using HotAvalonia;
 using ReactiveUI;
 
 namespace Artemis.UI.Windows;
@@ -41,7 +40,6 @@ public class App : Application
         LegacyMigrationService.MigrateToSqlite(_container);
 
         RxApp.MainThreadScheduler = AvaloniaScheduler.Instance;
-        this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -52,7 +50,7 @@ public class App : Application
         if (_container == null)
             throw new InvalidOperationException("Container is null");
         
-        _applicationStateManager = new ApplicationStateManager(_container, desktop.Args ?? []);
+        _applicationStateManager = new ApplicationStateManager(_container, desktop.Args ?? Array.Empty<string>());
         _suspensionManager = new SuspensionManager(_container);
         ArtemisBootstrapper.Initialize();
         RegisterProviders(_container);
@@ -91,7 +89,7 @@ public class App : Application
         try
         {
             CancellationTokenSource cts = new();
-            cts.CancelAfter(5000);
+            cts.CancelAfter(2000);
 
             HttpResponseMessage httpResponseMessage = client.Send(new HttpRequestMessage(HttpMethod.Post, url + "remote/bring-to-foreground") {Content = new StringContent(route ?? "")}, cts.Token);
             httpResponseMessage.EnsureSuccessStatusCode();

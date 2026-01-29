@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +35,6 @@ public partial class InstalledTabItemViewModel : ActivatableViewModelBase
 
     [Notify] private bool _updateAvailable;
     [Notify] private bool _autoUpdate;
-    [Notify] private bool _displayManagement = true;
 
     public InstalledTabItemViewModel(InstalledEntry entry,
         IWorkshopClient client,
@@ -86,7 +87,7 @@ public partial class InstalledTabItemViewModel : ActivatableViewModelBase
     public async Task ViewLocal()
     {
         if (Entry.EntryType == EntryType.Profile && Entry.TryGetMetadata("ProfileId", out Guid profileId))
-            await _router.Navigate($"profile/{profileId}/editor");
+            await _router.Navigate($"profile-editor/{profileId}");
         else if (Entry.EntryType == EntryType.Plugin)
             await _router.Navigate($"workshop/entries/plugins/details/{Entry.Id}/manage");
         else if (Entry.EntryType == EntryType.Layout)
@@ -110,11 +111,11 @@ public partial class InstalledTabItemViewModel : ActivatableViewModelBase
     {
         if (!Entry.TryGetMetadata("PluginId", out Guid pluginId))
             return;
-        PluginInfo? pluginInfo = _pluginManagementService.GetAllPluginInfo().FirstOrDefault(p => p.Guid == pluginId);
-        if (pluginInfo == null)
+        Plugin? plugin = _pluginManagementService.GetAllPlugins().FirstOrDefault(p => p.Guid == pluginId);
+        if (plugin == null)
             return;
 
-        PluginViewModel pluginViewModel = _settingsVmFactory.PluginViewModel(pluginInfo, ReactiveCommand.Create(() => { }));
+        PluginViewModel pluginViewModel = _settingsVmFactory.PluginViewModel(plugin, ReactiveCommand.Create(() => { }));
         await pluginViewModel.ExecuteRemovePrerequisites(true);
     }
 

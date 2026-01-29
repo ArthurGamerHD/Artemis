@@ -1,9 +1,12 @@
+using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.UI.Screens.Workshop.CurrentUser;
 using Artemis.UI.Shared.Services;
 using Artemis.WebClient.Workshop.Services;
 using FluentAvalonia.UI.Controls;
+using IdentityModel;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.SubmissionWizard.Steps;

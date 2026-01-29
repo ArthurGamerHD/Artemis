@@ -2,7 +2,7 @@ using System;
 using Artemis.Core;
 using Artemis.Storage;
 using Avalonia;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using DryIoc;
 using Serilog;
 
@@ -33,7 +33,10 @@ internal class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
     {
-        return AppBuilder.Configure<App>().UsePlatformDetect().LogToTrace().UseReactiveUI();
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .LogToTrace()
+            .UseReactiveUI();
     }
 
     public static void CreateLogger(IContainer container)

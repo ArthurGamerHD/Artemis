@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -40,7 +39,7 @@ public partial class PluginPrerequisitesUninstallDialogViewModel : ContentDialog
         _windowService = windowService;
         _pluginManagementService = pluginManagementService;
 
-        Prerequisites = [];
+        Prerequisites = new ObservableCollection<PluginPrerequisiteViewModel>();
         foreach (PluginPrerequisite prerequisite in subjects.SelectMany(prerequisitesSubject => prerequisitesSubject.PlatformPrerequisites))
             Prerequisites.Add(prerequisitesVmFactory.PluginPrerequisiteViewModel(prerequisite, true));
         Uninstall = ReactiveCommand.CreateFromTask(ExecuteUninstall, this.WhenAnyValue(vm => vm.CanUninstall));
@@ -85,7 +84,7 @@ public partial class PluginPrerequisitesUninstallDialogViewModel : ContentDialog
         // Disable all subjects that are plugins, this will disable their features too
         foreach (IPrerequisitesSubject prerequisitesSubject in _subjects)
         {
-            if (prerequisitesSubject is PluginInfo pluginInfo && pluginInfo.Plugin != null)
+            if (prerequisitesSubject is PluginInfo pluginInfo)
                 _pluginManagementService.DisablePlugin(pluginInfo.Plugin, true);
         }
 

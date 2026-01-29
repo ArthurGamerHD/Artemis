@@ -9,7 +9,7 @@ namespace Artemis.Core;
 /// <inheritdoc />
 public class DataBinding<TLayerProperty> : IDataBinding
 {
-    private readonly List<IDataBindingProperty> _properties = [];
+    private readonly List<IDataBindingProperty> _properties = new();
     private bool _disposed;
     private bool _isEnabled;
     private DataBindingNodeScript<TLayerProperty> _script;

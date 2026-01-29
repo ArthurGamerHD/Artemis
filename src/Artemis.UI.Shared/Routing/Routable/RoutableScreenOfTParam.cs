@@ -88,7 +88,7 @@ public abstract class RoutableScreen<TParam> : RoutableScreen, IRoutableScreen w
 
         Expression<Func<object[], TParam>> lambda = Expression.Lambda<Func<object[], TParam>>(
             Expression.Block(
-                [parameterExpression],
+                new[] {parameterExpression},
                 Expression.Assign(parameterExpression, Expression.New(parameterType)),
                 Expression.Block(propertyAssignments),
                 parameterExpression

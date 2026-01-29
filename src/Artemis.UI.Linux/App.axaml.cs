@@ -7,7 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using DryIoc;
 using ReactiveUI;
 
@@ -34,7 +34,7 @@ public class App : Application
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop || Design.IsDesignMode)
             return;
 
-        _applicationStateManager = new ApplicationStateManager(_container!, desktop.Args ?? []);
+        _applicationStateManager = new ApplicationStateManager(_container!, desktop.Args ?? Array.Empty<string>());
         ArtemisBootstrapper.Initialize();
         RegisterProviders();
     }

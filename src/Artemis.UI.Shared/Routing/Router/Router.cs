@@ -68,7 +68,7 @@ internal class Router : CorePropertyChanged, IRouter, IDisposable
     public IObservable<string?> CurrentPath => _currentRouteSubject;
 
     /// <inheritdoc />
-    public List<IRouterRegistration> Routes { get; } = [];
+    public List<IRouterRegistration> Routes { get; } = new();
 
     /// <inheritdoc />
     public async Task Navigate(string path, RouterNavigationOptions? options = null)
@@ -103,9 +103,7 @@ internal class Router : CorePropertyChanged, IRouter, IDisposable
     {
         if (_root == null)
             throw new ArtemisRoutingException("Cannot navigate without a root having been set");
-
-        // If navigating to the same path, don't do anything
-        if ((_currentNavigation == null && PathEquals(path, options)) || (_currentNavigation != null && _currentNavigation.PathEquals(path, options)))
+        if (PathEquals(path, options) || (_currentNavigation != null && _currentNavigation.PathEquals(path, options)))
             return;
 
         string? previousPath = _currentRouteSubject.Value;
@@ -130,8 +128,12 @@ internal class Router : CorePropertyChanged, IRouter, IDisposable
         await navigation.Navigate(args);
 
         // If it was cancelled before completion, don't add it to history or update the current path
+        // Do reload the current path because it may have been partially navigated away from
         if (navigation.Cancelled)
+        {
+            await Reload();
             return;
+        }
 
         if (options.AddToHistory && previousPath != null)
         {
@@ -249,13 +251,7 @@ internal class Router : CorePropertyChanged, IRouter, IDisposable
         if (_previousWindowRoute != null && _currentRouteSubject.Value == "blank")
             Dispatcher.UIThread.InvokeAsync(async () => await Navigate(_previousWindowRoute, new RouterNavigationOptions {AddToHistory = false, EnableLogging = false}));
         else if (_currentRouteSubject.Value == null || _currentRouteSubject.Value == "blank")
-        {
-            string? startupRoute = Constants.GetStartupRoute();
-            if (startupRoute != null)
-                Dispatcher.UIThread.InvokeAsync(async () => await Navigate(startupRoute, new RouterNavigationOptions {AddToHistory = false, EnableLogging = true}));
-            else
-                Dispatcher.UIThread.InvokeAsync(async () => await Navigate("home", new RouterNavigationOptions {AddToHistory = false, EnableLogging = true}));
-        }
+            Dispatcher.UIThread.InvokeAsync(async () => await Navigate("home", new RouterNavigationOptions {AddToHistory = false, EnableLogging = true}));
     }
 
     private void MainWindowServiceOnMainWindowClosed(object? sender, EventArgs e)

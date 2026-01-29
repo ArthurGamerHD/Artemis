@@ -175,7 +175,7 @@ public class WindowsUpdateNotificationProvider : IUpdateNotificationProvider
         else if (action == "disable-workshop-notifications")
             _workshopUpdateService.DisableNotifications();
         else if (action == "view-library")
-            NavigateToRoute("workshop/library/recently-updated");
+            NavigateToRoute("workshop/library");
     }
 
     private void NavigateToRoute(string route)

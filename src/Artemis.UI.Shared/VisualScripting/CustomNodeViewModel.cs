@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using Artemis.Core;
 using ReactiveUI;
 using ReactiveUI.Validation.Helpers;

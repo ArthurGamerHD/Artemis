@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using SkiaSharp;
 
 namespace Artemis.UI.Shared.DefaultTypes.DataModel.Display;

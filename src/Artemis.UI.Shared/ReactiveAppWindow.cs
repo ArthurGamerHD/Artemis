@@ -1,9 +1,12 @@
 ﻿using System;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using Avalonia.Styling;
+using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
 
@@ -49,7 +52,7 @@ public class ReactiveAppWindow<TViewModel> : AppWindow, IViewFor<TViewModel> whe
                 return;
 
             // TransparencyBackgroundFallback = Brushes.Transparent;
-            TransparencyLevelHint = [WindowTransparencyLevel.Mica];
+            TransparencyLevelHint = new[] {WindowTransparencyLevel.Mica};
             Background = new SolidColorBrush(new Color(80, 0,0,0));
 
         }

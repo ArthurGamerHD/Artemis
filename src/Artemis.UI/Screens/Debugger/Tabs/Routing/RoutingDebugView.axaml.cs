@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 
 namespace Artemis.UI.Screens.Debugger.Routing;

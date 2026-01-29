@@ -8,7 +8,6 @@ public interface IAuthenticationService : IProtectedArtemisService
 {
     IObservable<bool> IsLoggedIn { get; }
     ReadOnlyObservableCollection<Claim> Claims { get; }
-    ReadOnlyObservableCollection<string> Roles { get; }
 
     IObservable<Claim?> GetClaim(string type);
     Task<string?> GetBearer();

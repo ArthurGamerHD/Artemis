@@ -1,6 +1,8 @@
 ﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Styling;
 
 namespace Artemis.UI.Shared;
 

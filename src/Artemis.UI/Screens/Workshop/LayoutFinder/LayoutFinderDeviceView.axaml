@@ -44,13 +44,7 @@
                                    Margin="0 0 0 0" 
                                    VerticalAlignment="Center"/>
             <Panel IsVisible="{CompiledBinding !Searching}">
-                <avalonia:MaterialIcon IsVisible="{CompiledBinding SearchPending}"
-                                       Width="28" 
-                                       Height="28" 
-                                       Kind="QuestionMarkCircle"
-                                       Foreground="#DAA520"
-                                       ToolTip.Tip="Search pending"/>
-                <avalonia:MaterialIcon IsVisible="{CompiledBinding NoLayoutFound}"
+                <avalonia:MaterialIcon IsVisible="{CompiledBinding Entry, Converter={x:Static ObjectConverters.IsNull}}"
                                        Width="28" 
                                        Height="28" 
                                        Kind="MultiplyCircle"

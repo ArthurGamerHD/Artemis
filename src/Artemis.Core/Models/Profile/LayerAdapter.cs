@@ -17,7 +17,7 @@ public class LayerAdapter : IStorageModel
 
     internal LayerAdapter(Layer layer)
     {
-        _adaptionHints = [];
+        _adaptionHints = new List<IAdaptionHint>();
         Layer = layer;
         AdaptionHints = new ReadOnlyCollection<IAdaptionHint>(_adaptionHints);
     }
@@ -48,7 +48,7 @@ public class LayerAdapter : IStorageModel
         else
         {
             List<ArtemisLed> availableLeds = devices.SelectMany(d => d.Leds).ToList();
-            List<ArtemisLed> usedLeds = [];
+            List<ArtemisLed> usedLeds = new();
 
             foreach (LedEntity ledEntity in Layer.LayerEntity.Leds)
             {
@@ -73,7 +73,7 @@ public class LayerAdapter : IStorageModel
     /// </summary>
     public List<IAdaptionHint> DetermineHints(IEnumerable<ArtemisDevice> devices)
     {
-        List<IAdaptionHint> newHints = [];
+        List<IAdaptionHint> newHints = new();
         if (devices.All(DoesLayerCoverDevice))
         {
             DeviceAdaptionHint hint = new() {DeviceType = RGBDeviceType.All};

@@ -24,7 +24,7 @@ public class DataModelListViewModel : DataModelVisualizationViewModel
         : base(dataModel, parent, dataModelPath)
     {
         _countDisplay = "0 items";
-        _listChildren = [];
+        _listChildren = new ObservableCollection<DataModelVisualizationViewModel>();
     }
 
     /// <summary>

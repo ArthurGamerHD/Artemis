@@ -16,7 +16,7 @@ public abstract class LayerBrushProvider : PluginFeature
     /// </summary>
     protected LayerBrushProvider()
     {
-        _layerBrushDescriptors = [];
+        _layerBrushDescriptors = new List<LayerBrushDescriptor>();
         LayerBrushDescriptors = new ReadOnlyCollection<LayerBrushDescriptor>(_layerBrushDescriptors);
         Disabled += OnDisabled;
     }

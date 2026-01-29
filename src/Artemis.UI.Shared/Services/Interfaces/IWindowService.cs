@@ -29,8 +29,7 @@ public interface IWindowService : IArtemisSharedUIService
     /// </summary>
     /// <param name="title">The title of the dialog</param>
     /// <param name="exception">The exception to display</param>
-    /// <param name="customMessage"></param>
-    void ShowExceptionDialog(string title, Exception exception, string? customMessage = null);
+    void ShowExceptionDialog(string title, Exception exception);
 
     /// <summary>
     ///     Creates a view model instance of type <typeparamref name="TViewModel" /> and shows its corresponding View as a

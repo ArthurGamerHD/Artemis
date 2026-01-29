@@ -14,7 +14,7 @@ internal sealed class SurfaceManager : IDisposable
 {
     private readonly IRenderer _renderer;
     private readonly TimerUpdateTrigger _updateTrigger;
-    private readonly List<ArtemisDevice> _devices = [];
+    private readonly List<ArtemisDevice> _devices = new();
     private readonly SKTextureBrush _textureBrush = new(null) {CalculationMode = RenderMode.Absolute};
 
     private ListLedGroup? _surfaceLedGroup;
@@ -44,7 +44,7 @@ internal sealed class SurfaceManager : IDisposable
 
     public void AddDevices(IEnumerable<ArtemisDevice> devices)
     {
-        List<IRGBDevice> newDevices = [];
+        List<IRGBDevice> newDevices = new();
         lock (_devices)
         {
             foreach (ArtemisDevice artemisDevice in devices)
@@ -66,7 +66,7 @@ internal sealed class SurfaceManager : IDisposable
 
     public void RemoveDevices(IEnumerable<ArtemisDevice> devices)
     {
-        List<IRGBDevice> removedDevices = [];
+        List<IRGBDevice> removedDevices = new();
         lock (_devices)
         {
             foreach (ArtemisDevice artemisDevice in devices)

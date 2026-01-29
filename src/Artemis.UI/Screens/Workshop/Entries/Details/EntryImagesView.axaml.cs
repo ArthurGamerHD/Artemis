@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Input;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.Entries.Details;
 

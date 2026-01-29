@@ -1,4 +1,4 @@
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.Plugins.Features;
 

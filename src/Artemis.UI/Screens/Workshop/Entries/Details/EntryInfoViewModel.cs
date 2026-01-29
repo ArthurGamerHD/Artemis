@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -25,7 +25,7 @@ public partial class EntryInfoViewModel : ActivatableViewModelBase
     [Notify] private DateTimeOffset? _updatedAt;
     [Notify] private bool _canBeManaged;
 
-    public EntryInfoViewModel(IRouter router, INotificationService notificationService, IWorkshopService workshopService, IAuthenticationService authenticationService)
+    public EntryInfoViewModel(IRouter router, INotificationService notificationService, IWorkshopService workshopService)
     {
         _router = router;
         _notificationService = notificationService;
@@ -38,12 +38,8 @@ public partial class EntryInfoViewModel : ActivatableViewModelBase
                 .Subscribe(_ => CanBeManaged = Entry != null && Entry.EntryType != EntryType.Profile && workshopService.GetInstalledEntry(Entry.Id) != null)
                 .DisposeWith(d);
         });
-        
-        IsAdministrator = authenticationService.Roles.Contains("Administrator");
     }
-
-    public bool IsAdministrator { get; }
-
+    
     public void SetEntry(IEntryDetails? entry)
     {
         Entry = entry;
@@ -58,14 +54,6 @@ public partial class EntryInfoViewModel : ActivatableViewModelBase
         
         await Shared.UI.Clipboard.SetTextAsync($"{WorkshopConstants.WORKSHOP_URL}/entries/{Entry.Id}/{StringUtilities.UrlFriendly(Entry.Name)}");
         _notificationService.CreateNotification().WithTitle("Copied share link to clipboard.").Show();
-    }
-    
-    public async Task GoToEdit()
-    {
-        if (Entry == null)
-            return;
-        
-        await _router.Navigate($"workshop/library/submissions/{Entry.Id}");
     }
 
     public async Task GoToManage()

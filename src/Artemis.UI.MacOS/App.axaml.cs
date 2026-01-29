@@ -2,7 +2,7 @@ using Artemis.Storage.Legacy;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using DryIoc;
 using ReactiveUI;
 

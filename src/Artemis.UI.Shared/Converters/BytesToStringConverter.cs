@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Humanizer;
+using Humanizer.Bytes;
 
 namespace Artemis.UI.Shared.Converters;
 

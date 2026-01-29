@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core.DeviceProviders;
 using Artemis.Core.Providers;
@@ -156,11 +157,10 @@ internal class DeviceService : IDeviceService
         }
     }
 
-    /// <param name="leftHanded"></param>
     /// <inheritdoc />
-    public void AutoArrangeDevices(bool leftHanded)
+    public void AutoArrangeDevices()
     {
-        SurfaceArrangement surfaceArrangement = SurfaceArrangement.GetDefaultArrangement(leftHanded);
+        SurfaceArrangement surfaceArrangement = SurfaceArrangement.GetDefaultArrangement();
         surfaceArrangement.Arrange(_devices);
         foreach (ArtemisDevice artemisDevice in _devices)
             artemisDevice.ApplyDefaultCategories();

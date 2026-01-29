@@ -1,4 +1,5 @@
-﻿using Artemis.Core.Services;
+﻿using System;
+using Artemis.Core.Services;
 using Artemis.Storage.Entities.Profile;
 
 namespace Artemis.Core;

@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
 using Artemis.Core.Services;
+using Artemis.Storage.Entities.Profile;
 using Artemis.UI.DryIoc.Factories;
 using Artemis.UI.Extensions;
 using Artemis.UI.Models;

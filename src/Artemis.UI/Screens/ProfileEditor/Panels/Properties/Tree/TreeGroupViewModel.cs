@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Reflection;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -95,7 +94,7 @@ public class TreeGroupViewModel : ActivatableViewModelBase
         }
         catch (Exception e)
         {
-            _windowService.ShowExceptionDialog("An error occurred while trying to show the brush's settings window", e);
+            _windowService.ShowExceptionDialog("An exception occurred while trying to show the brush's settings window", e);
         }
     }
 
@@ -120,7 +119,7 @@ public class TreeGroupViewModel : ActivatableViewModelBase
         }
         catch (Exception e)
         {
-            _windowService.ShowExceptionDialog("An error occurred while trying to show the effect's settings window", e);
+            _windowService.ShowExceptionDialog("An exception occurred while trying to show the effect's settings window", e);
         }
     }
 

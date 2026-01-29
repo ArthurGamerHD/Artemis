@@ -15,45 +15,34 @@ namespace Artemis.UI.Screens.Plugins;
 public class PluginSettingsViewModel : ActivatableViewModelBase
 {
     private readonly INotificationService _notificationService;
-    private readonly IWindowService _windowService;
+    private readonly Plugin _plugin;
+
     private readonly IPluginManagementService _pluginManagementService;
 
-    public PluginSettingsViewModel(PluginInfo pluginInfo, ISettingsVmFactory settingsVmFactory, IPluginManagementService pluginManagementService, INotificationService notificationService,
-        IWindowService windowService)
+    public PluginSettingsViewModel(Plugin plugin, ISettingsVmFactory settingsVmFactory, IPluginManagementService pluginManagementService, INotificationService notificationService)
     {
+        _plugin = plugin;
         _pluginManagementService = pluginManagementService;
         _notificationService = notificationService;
-        _windowService = windowService;
 
-        PluginInfo = pluginInfo;
         Reload = ReactiveCommand.CreateFromTask(ExecuteReload);
-        PluginViewModel = settingsVmFactory.PluginViewModel(PluginInfo, Reload);
-        PluginFeatures = new ObservableCollection<PluginFeatureViewModel>(PluginInfo.Plugin?.Features.Select(f => settingsVmFactory.PluginFeatureViewModel(f, false)) ?? []);
+        PluginViewModel = settingsVmFactory.PluginViewModel(_plugin, Reload);
+        PluginFeatures = new ObservableCollection<PluginFeatureViewModel>(_plugin.Features.Select(f => settingsVmFactory.PluginFeatureViewModel(f, false)));
     }
 
-    public PluginInfo PluginInfo { get; }
     public ReactiveCommand<Unit, Unit> Reload { get; }
 
     public PluginViewModel PluginViewModel { get; }
 
     public ObservableCollection<PluginFeatureViewModel> PluginFeatures { get; }
 
-    public void ViewLoadException()
-    {
-        if (PluginInfo.LoadException != null)
-            _windowService.ShowExceptionDialog("Plugin failed to load", PluginInfo.LoadException);
-    }
-
     private async Task ExecuteReload()
     {
-        if (PluginInfo.Plugin == null)
-            return;
-
         // Unloading the plugin will remove this viewmodel, this method is it's final act 😭
-        bool wasEnabled = PluginInfo.Plugin.IsEnabled;
-        await Task.Run(() => _pluginManagementService.UnloadPlugin(PluginInfo.Plugin));
+        bool wasEnabled = _plugin.IsEnabled;
+        await Task.Run(() => _pluginManagementService.UnloadPlugin(_plugin));
 
-        Plugin? plugin = _pluginManagementService.LoadPlugin(PluginInfo.Plugin.Directory);
+        Plugin? plugin = _pluginManagementService.LoadPlugin(_plugin.Directory);
         if (plugin != null && wasEnabled)
         {
             await Task.Run(() => _pluginManagementService.EnablePlugin(plugin, true, true));

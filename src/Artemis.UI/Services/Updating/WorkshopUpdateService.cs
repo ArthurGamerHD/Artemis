@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core;
 using Artemis.Core.Services;
-using Artemis.UI.Extensions;
 using Artemis.UI.Services.Interfaces;
 using Artemis.UI.Shared.Utilities;
 using Artemis.WebClient.Workshop;
@@ -20,27 +19,19 @@ public class WorkshopUpdateService : IWorkshopUpdateService
     private readonly ILogger _logger;
     private readonly IWorkshopClient _client;
     private readonly IWorkshopService _workshopService;
-    private readonly IPluginManagementService _pluginManagementService;
     private readonly Lazy<IUpdateNotificationProvider> _updateNotificationProvider;
     private readonly PluginSetting<bool> _showNotifications;
-    private readonly PluginSetting<int> _unseenUpdates;
 
-    public WorkshopUpdateService(ILogger logger,
-        IWorkshopClient client,
-        IWorkshopService workshopService,
-        ISettingsService settingsService,
-        IPluginManagementService pluginManagementService,
+    public WorkshopUpdateService(ILogger logger, IWorkshopClient client, IWorkshopService workshopService, ISettingsService settingsService,
         Lazy<IUpdateNotificationProvider> updateNotificationProvider)
     {
         _logger = logger;
         _client = client;
         _workshopService = workshopService;
-        _pluginManagementService = pluginManagementService;
         _updateNotificationProvider = updateNotificationProvider;
         _showNotifications = settingsService.GetSetting("Workshop.ShowNotifications", true);
-        _unseenUpdates = settingsService.GetSetting("Workshop.UnseenUpdates", 0);
     }
-    
+
     public async Task AutoUpdateEntries()
     {
         _logger.Information("Checking for workshop updates");
@@ -62,9 +53,6 @@ public class WorkshopUpdateService : IWorkshopUpdateService
 
         if (updatedEntries > 0 && _showNotifications.Value)
             _updateNotificationProvider.Value.ShowWorkshopNotification(updatedEntries);
-        
-        _unseenUpdates.Value += updatedEntries;
-        _unseenUpdates.Save();
     }
 
     public async Task<bool> AutoUpdateEntry(InstalledEntry installedEntry)
@@ -81,12 +69,6 @@ public class WorkshopUpdateService : IWorkshopUpdateService
             if (latestRelease.Id == installedEntry.ReleaseId)
                 return false;
 
-            if (!latestRelease.IsCompatible())
-            {
-                _logger.Information("Skipping auto-update of entry {Entry} because it requires a newer version of Artemis ({RequiredVersion})", entry, latestRelease.MinimumVersion);
-                return false;
-            }
-
             _logger.Information("Auto-updating entry {Entry} to version {Version}", entry, latestRelease.Version);
             EntryInstallResult updateResult = await _workshopService.InstallEntry(entry, latestRelease, new Progress<StreamProgress>(), CancellationToken.None);
 
@@ -98,18 +80,6 @@ public class WorkshopUpdateService : IWorkshopUpdateService
                 _logger.Information("Auto-update successful for entry {Entry}", entry);
             else
                 _logger.Warning("Auto-update failed for entry {Entry}: {Message}", entry, updateResult.Message);
-
-            if (!updateResult.IsSuccess || updateResult.Installed is not Plugin {IsEnabled: false} updatedPlugin)
-                return updateResult.IsSuccess;
-
-            try
-            {
-                _pluginManagementService.EnablePlugin(updatedPlugin, true, true);
-            }
-            catch (Exception e)
-            {
-                _logger.Warning(e, "Failed to auto-enable updated plugin {Plugin}", updatedPlugin);
-            }
 
             return updateResult.IsSuccess;
         }
@@ -126,12 +96,5 @@ public class WorkshopUpdateService : IWorkshopUpdateService
     {
         _showNotifications.Value = false;
         _showNotifications.Save();
-    }
-
-    /// <inheritdoc />
-    public void MarkUpdatesAsSeen()
-    {
-        _unseenUpdates.Value = 0;
-        _unseenUpdates.Save();
     }
 }

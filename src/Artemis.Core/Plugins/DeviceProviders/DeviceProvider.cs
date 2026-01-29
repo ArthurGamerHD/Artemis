@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using RGB.NET.Core;
 
 namespace Artemis.Core.DeviceProviders;

@@ -10,7 +10,7 @@ public interface IWorkshopUpdateService : IArtemisUIService
     /// </summary>
     /// <returns>A task that represents the asynchronous operation</returns>
     Task AutoUpdateEntries();
-
+    
     /// <summary>
     /// Automatically updates the provided entry if a new version is available.
     /// </summary>
@@ -22,9 +22,4 @@ public interface IWorkshopUpdateService : IArtemisUIService
     /// Disable workshop update notifications.
     /// </summary>
     void DisableNotifications();
-
-    /// <summary>
-    /// Marks the workshop updates as seen.
-    /// </summary>
-    void MarkUpdatesAsSeen();
 }

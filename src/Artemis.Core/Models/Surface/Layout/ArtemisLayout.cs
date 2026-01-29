@@ -21,7 +21,7 @@ public class ArtemisLayout
     public ArtemisLayout(string filePath)
     {
         FilePath = filePath;
-        Leds = [];
+        Leds = new List<ArtemisLedLayout>();
         IsDefaultLayout = filePath.StartsWith(DefaultLayoutPath);
         
         LoadLayout();
@@ -70,7 +70,7 @@ public class ArtemisLayout
         device.Size = new Size(MathF.Round(RgbLayout.Width), MathF.Round(RgbLayout.Height));
         device.DeviceInfo.LayoutMetadata = RgbLayout.CustomData;
 
-        HashSet<LedId> ledIds = [];
+        HashSet<LedId> ledIds = new();
         foreach (ILedLayout layoutLed in RgbLayout.Leds)
         {
             if (Enum.TryParse(layoutLed.Id, true, out LedId ledId))

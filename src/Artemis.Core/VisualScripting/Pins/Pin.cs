@@ -60,7 +60,7 @@ public abstract class Pin : CorePropertyChanged, IPin
         protected set => SetAndNotify(ref _isNumeric, value);
     }
 
-    private readonly List<IPin> _connectedTo = [];
+    private readonly List<IPin> _connectedTo = new();
     private string _name;
 
     /// <inheritdoc />

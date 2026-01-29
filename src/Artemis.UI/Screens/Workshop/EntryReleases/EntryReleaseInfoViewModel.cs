@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Core;
 using Artemis.Core.Services;
-using Artemis.UI.Extensions;
+using Artemis.UI.DryIoc.Factories;
+using Artemis.UI.Screens.Plugins;
 using Artemis.UI.Screens.Workshop.EntryReleases.Dialogs;
-using Artemis.UI.Services.Interfaces;
 using Artemis.UI.Shared;
 using Artemis.UI.Shared.Routing;
 using Artemis.UI.Shared.Services;
@@ -31,7 +30,7 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
     private readonly IWindowService _windowService;
     private readonly IWorkshopService _workshopService;
     private readonly IPluginManagementService _pluginManagementService;
-    private readonly IPluginInteractionService _pluginInteractionService;
+    private readonly ISettingsVmFactory _settingsVmFactory;
     private readonly Progress<StreamProgress> _progress = new();
 
     [Notify] private IReleaseDetails? _release;
@@ -39,7 +38,6 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
     [Notify] private bool _isCurrentVersion;
     [Notify] private bool _installationInProgress;
     [Notify] private bool _inDetailsScreen;
-    [Notify] private string? _incompatibilityReason;
 
     private CancellationTokenSource? _cts;
 
@@ -48,14 +46,14 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
         IWindowService windowService,
         IWorkshopService workshopService,
         IPluginManagementService pluginManagementService,
-        IPluginInteractionService pluginInteractionService)
+        ISettingsVmFactory settingsVmFactory)
     {
         _router = router;
         _notificationService = notificationService;
         _windowService = windowService;
         _workshopService = workshopService;
         _pluginManagementService = pluginManagementService;
-        _pluginInteractionService = pluginInteractionService;
+        _settingsVmFactory = settingsVmFactory;
         _progress.ProgressChanged += (_, f) => InstallProgress = f.ProgressPercentage;
 
         this.WhenActivated(d =>
@@ -69,11 +67,9 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
             }).DisposeWith(d);
 
             IsCurrentVersion = Release != null && _workshopService.GetInstalledEntry(Release.Entry.Id)?.ReleaseId == Release.Id;
-            IncompatibilityReason = Release != null && !Release.IsCompatible() ? $"Requires Artemis v{Release.MinimumVersion} or later" : null;
         });
 
         this.WhenAnyValue(vm => vm.Release).Subscribe(r => IsCurrentVersion = r != null && _workshopService.GetInstalledEntry(r.Entry.Id)?.ReleaseId == r.Id);
-        this.WhenAnyValue(vm => vm.Release).Subscribe(r => IncompatibilityReason = r != null && !r.IsCompatible() ? $"Requires Artemis v{r.MinimumVersion} or later" : null);
 
         InDetailsScreen = true;
     }
@@ -128,24 +124,11 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
                 _workshopService.SetAutoUpdate(result.Entry, !disableAutoUpdates);
                 _notificationService.CreateNotification().WithTitle("Installation succeeded").WithSeverity(NotificationSeverity.Success).Show();
                 InstallationInProgress = false;
-
-                // Auto-enable plugins as the installation handler won't deal with the required UI interactions
-                if (result.Installed is Plugin installedPlugin)
-                    await AutoEnablePlugin(installedPlugin);
+                await Manage();
             }
             else if (!_cts.IsCancellationRequested)
             {
-                if (result.Exception != null)
-                {
-                    // Not taking the fall on this one :')
-                    _windowService.ShowExceptionDialog(
-                        "Failed to install workshop entry",
-                        result.Exception,
-                        "Make sure the entry is compatible with this version of Artemis or reach out to the author for support."
-                    );
-                }
-                else
-                    await _windowService.ShowConfirmContentDialog("Failed to install workshop entry", result.Message ?? "Unknown error", "Close", null);
+                _notificationService.CreateNotification().WithTitle("Installation failed").WithMessage(result.Message).WithSeverity(NotificationSeverity.Error).Show();
             }
         }
         catch (Exception e)
@@ -156,6 +139,12 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
         {
             InstallationInProgress = false;
         }
+    }
+
+    public async Task Manage()
+    {
+        if (Release?.Entry.EntryType != EntryType.Profile)
+            await _router.Navigate("../../manage", new RouterNavigationOptions {AdditionalArguments = true});
     }
 
     public async Task Reinstall()
@@ -204,28 +193,7 @@ public partial class EntryReleaseInfoViewModel : ActivatableViewModelBase
         if (plugin == null)
             return;
 
-        await _pluginInteractionService.RemovePluginPrerequisites(plugin, true);
-    }
-
-    private async Task AutoEnablePlugin(Plugin plugin)
-    {
-        // There's quite a bit of UI involved in enabling a plugin, borrowing the PluginSettingsViewModel for this
-        await _pluginInteractionService.EnablePlugin(plugin, true);
-
-        // Find features without prerequisites to enable
-        foreach (PluginFeatureInfo pluginFeatureInfo in plugin.Features)
-        {
-            if (pluginFeatureInfo.Instance == null || pluginFeatureInfo.Instance.IsEnabled || pluginFeatureInfo.Prerequisites.Count != 0)
-                continue;
-
-            try
-            {
-                _pluginManagementService.EnablePluginFeature(pluginFeatureInfo.Instance, true);
-            }
-            catch (Exception e)
-            {
-                _notificationService.CreateNotification().WithTitle("Failed to enable plugin feature").WithMessage(e.Message).WithSeverity(NotificationSeverity.Error).Show();
-            }
-        }
+        PluginViewModel pluginViewModel = _settingsVmFactory.PluginViewModel(plugin, ReactiveCommand.Create(() => { }));
+        await pluginViewModel.ExecuteRemovePrerequisites(true);
     }
 }

@@ -6,9 +6,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
 
 namespace Artemis.UI.Screens.Sidebar;

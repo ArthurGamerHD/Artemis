@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using GenHTTP.Api.Protocol;
+using GenHTTP.Modules.Basics;
 using GenHTTP.Modules.IO;
 using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
 
@@ -55,7 +57,7 @@ public abstract class PluginEndPoint
     public FlexibleContentType Returns { get; protected set; }
 
     /// <summary>
-    ///     Occurs whenever a request threw an Unhandled error
+    ///     Occurs whenever a request threw an unhandled exception
     /// </summary>
     public event EventHandler<EndpointExceptionEventArgs>? RequestException;
 

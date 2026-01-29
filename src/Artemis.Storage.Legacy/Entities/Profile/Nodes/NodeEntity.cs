@@ -4,7 +4,7 @@ internal class NodeEntity
 {
     public NodeEntity()
     {
-        PinCollections = [];
+        PinCollections = new List<NodePinCollectionEntity>();
     }
 
     public NodeEntity(NodeEntity nodeEntity)

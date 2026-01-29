@@ -1,5 +1,5 @@
-query GetEntries($search: String $includeDefaults: Boolean $filter: EntryFilterInput $order: [EntrySortInput!] $first: Int $after: String) {
-    pagedEntries(search: $search includeDefaults: $includeDefaults where: $filter order: $order first: $first after: $after) {
+query GetEntriesv2($search: String $filter: EntryFilterInput $order: [EntrySortInput!] $first: Int $after: String) {
+    entriesV2(search: $search where: $filter order: $order first: $first after: $after) {
         totalCount
         pageInfo {
             hasNextPage
@@ -17,31 +17,5 @@ query GetEntries($search: String $includeDefaults: Boolean $filter: EntryFilterI
 query GetPopularEntries {
     popularEntries {
         ...entrySummary
-    }
-}
-
-query GetDefaultEntries {
-    entries(
-        includeDefaults: true
-        where: { defaultEntryInfo: { entryId: { gt: 0 } } }
-    ) {
-        ...entrySummary
-    }
-}
-
-query GetDefaultPlugins {
-    entries(
-        includeDefaults: true
-        where: {
-            and: [
-                { defaultEntryInfo: { entryId: { gt: 0 } } }
-                { entryType: {eq: PLUGIN} }
-            ]
-        }
-    ) {
-        ...entrySummary
-        pluginInfo {
-            pluginGuid
-        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Artemis.Core;
 using Artemis.Core.Services;
@@ -9,6 +9,7 @@ using Artemis.UI.Shared.Extensions;
 using Artemis.UI.Shared.Services.ProfileEditor;
 using Artemis.UI.Shared.Services.ProfileEditor.Commands;
 using Avalonia;
+using Avalonia.Input;
 using Material.Icons;
 using PropertyChanged.SourceGenerator;
 using ReactiveUI;
@@ -225,7 +226,7 @@ public partial class TransformToolViewModel : ToolViewModel
         // Add the current position to the start anchor to determine the new position
         SKPoint current = start + (position - _dragOffset);
         // In order to keep the mouse movement unrotated, counter-act the active rotation
-        SKPoint[] countered = UnTransformPoints([start, current], Layer, start, true);
+        SKPoint[] countered = UnTransformPoints(new[] {start, current}, Layer, start, true);
 
         // If shift is held down, round down to 1 decimal to allow moving the anchor in big increments
         int decimals = round ? 1 : 3;

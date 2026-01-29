@@ -26,6 +26,3 @@ apiRules:
 - exclude:
       uidRegex: ^Artemis\.Core\.TypeExtensions
       type: Type
-- exclude:
-      uidRegex: ^Artemis\.Storage
-      type: Type

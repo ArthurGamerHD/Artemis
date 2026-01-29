@@ -1,13 +1,12 @@
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls.PanAndZoom;
 using Avalonia.Input;
 using Avalonia.Media;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 using ReactiveUI;
 
@@ -28,9 +27,8 @@ public partial class VisualEditorView : ReactiveUserControl<VisualEditorViewMode
 
         this.WhenActivated(d =>
         {
-            VisualEditorViewModel vm = ViewModel!;
-            vm!.AutoFitRequested += ViewModelOnAutoFitRequested;
-            Disposable.Create(() => vm.AutoFitRequested -= ViewModelOnAutoFitRequested).DisposeWith(d);
+            ViewModel!.AutoFitRequested += ViewModelOnAutoFitRequested;
+            Disposable.Create(() => ViewModel.AutoFitRequested -= ViewModelOnAutoFitRequested).DisposeWith(d);
         });
 
         this.WhenAnyValue(v => v.Bounds).Where(_ => !_movedByUser).Subscribe(_ => AutoFit(true));

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace Artemis.Storage.Entities.Plugins;
@@ -12,7 +13,7 @@ public class PluginEntity
 {
     public PluginEntity()
     {
-        Features = [];
+        Features = new List<PluginFeatureEntity>();
     }
 
     public Guid Id { get; set; }

@@ -1,9 +1,10 @@
+using System.Reactive.Disposables;
 using Artemis.UI.Shared;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
+using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using ReactiveUI;
 using System;
-using System.Reactive.Disposables.Fluent;
 
 namespace Artemis.UI.Screens.Workshop.Entries;
 

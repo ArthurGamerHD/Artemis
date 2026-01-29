@@ -1,6 +1,6 @@
 using System.Threading;
 using Avalonia.Controls;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.Entries.List;

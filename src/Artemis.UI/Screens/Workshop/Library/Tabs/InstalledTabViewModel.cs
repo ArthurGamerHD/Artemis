@@ -2,10 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Artemis.UI.Shared.Routing;
+using Artemis.WebClient.Workshop;
 using Artemis.WebClient.Workshop.Models;
 using Artemis.WebClient.Workshop.Services;
 using DynamicData;
@@ -19,7 +18,6 @@ namespace Artemis.UI.Screens.Workshop.Library.Tabs;
 
 public partial class InstalledTabViewModel : RoutableScreen
 {
-    private readonly IRouter _router;
     private SourceList<InstalledEntry> _entries = new();
 
     [Notify] private string? _searchEntryInput;
@@ -27,7 +25,6 @@ public partial class InstalledTabViewModel : RoutableScreen
 
     public InstalledTabViewModel(IWorkshopService workshopService, IRouter router, Func<InstalledEntry, InstalledTabItemViewModel> getInstalledTabItemViewModel)
     {
-        _router = router;
         IObservable<Func<InstalledEntry, bool>> searchFilter = this.WhenAnyValue(vm => vm.SearchEntryInput)
             .Throttle(TimeSpan.FromMilliseconds(100))
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -50,6 +47,8 @@ public partial class InstalledTabViewModel : RoutableScreen
             workshopService.OnEntryUninstalled += WorkshopServiceOnOnEntryUninstalled;
             Disposable.Create(() => workshopService.OnEntryUninstalled -= WorkshopServiceOnOnEntryUninstalled).DisposeWith(d);
         });
+
+        OpenWorkshop = ReactiveCommand.CreateFromTask(async () => await router.Navigate("workshop"));
     }
 
     private void WorkshopServiceOnOnEntryUninstalled(object? sender, InstalledEntry e)
@@ -58,13 +57,9 @@ public partial class InstalledTabViewModel : RoutableScreen
     }
 
     public bool Empty => _empty.Value;
+    public ReactiveCommand<Unit, Unit> OpenWorkshop { get; }
     public ReadOnlyObservableCollection<IGrouping<InstalledTabItemViewModel, string>> EntryGroups { get; }
 
-    public async Task OpenWorkshop()
-    {
-        await _router.Navigate("workshop");
-    }
-    
     private Func<InstalledEntry, bool> CreatePredicate(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))

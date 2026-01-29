@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Artemis.Core;
@@ -13,6 +13,7 @@ using Artemis.UI.Shared;
 using Artemis.UI.Shared.Extensions;
 using Artemis.UI.Shared.Services.ProfileEditor;
 using Artemis.UI.Shared.Services.ProfileEditor.Commands;
+using Avalonia;
 using Avalonia.Input;
 using DynamicData;
 using DynamicData.Binding;
@@ -35,7 +36,7 @@ public partial class TimelineKeyframeViewModel<T> : ActivatableViewModelBase, IT
         _profileEditorService = profileEditorService;
         _timestamp = "0.000";
         LayerPropertyKeyframe = layerPropertyKeyframe;
-        EasingViewModels = [];
+        EasingViewModels = new ObservableCollection<TimelineEasingViewModel>();
 
         this.WhenActivated(d =>
         {
@@ -128,7 +129,7 @@ public partial class TimelineKeyframeViewModel<T> : ActivatableViewModelBase, IT
 
     private async Task ExecuteCopy()
     {
-        List<KeyframeClipboardModel> keyframes = [];
+        List<KeyframeClipboardModel> keyframes = new();
         if (!IsSelected)
             keyframes.Add(new KeyframeClipboardModel(Keyframe));
         else

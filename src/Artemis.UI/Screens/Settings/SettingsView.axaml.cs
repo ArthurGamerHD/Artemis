@@ -1,7 +1,8 @@
 using System;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using Artemis.UI.Shared;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
+using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using ReactiveUI;
 

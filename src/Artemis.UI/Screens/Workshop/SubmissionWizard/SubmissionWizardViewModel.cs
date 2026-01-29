@@ -1,4 +1,4 @@
-﻿using System.Reactive.Disposables.Fluent;
+﻿using System.Reactive.Disposables;
 using Artemis.UI.Screens.Workshop.CurrentUser;
 using Artemis.UI.Screens.Workshop.SubmissionWizard.Models;
 using Artemis.UI.Screens.Workshop.SubmissionWizard.Steps;

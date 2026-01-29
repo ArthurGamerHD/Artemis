@@ -1,5 +1,8 @@
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.Workshop.CurrentUser;
 

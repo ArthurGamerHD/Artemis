@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.Device.Layout;
 

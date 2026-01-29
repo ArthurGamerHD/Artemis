@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -42,7 +43,7 @@ public partial class ProfileConfigurationIcon : UserControl, IDisposable
             if (ConfigurationIcon.IconType == ProfileConfigurationIconType.MaterialIcon)
             {
                 Content = Enum.TryParse(ConfigurationIcon.IconName, true, out MaterialIconKind parsedIcon)
-                    ? new MaterialIcon {Kind = parsedIcon}
+                    ? new MaterialIcon {Kind = parsedIcon!}
                     : new MaterialIcon {Kind = MaterialIconKind.QuestionMark};
             }
             else if (ConfigurationIcon.IconBytes != null)
@@ -64,28 +65,19 @@ public partial class ProfileConfigurationIcon : UserControl, IDisposable
                 return;
 
             _stream = new MemoryStream(ConfigurationIcon.IconBytes);
-            Border border = new()
+            if (!ConfigurationIcon.Fill)
             {
-                CornerRadius = CornerRadius,
-                ClipToBounds = true,
+                Content = new Image {Source = new Bitmap(_stream)};
+                return;
+            }
+
+            Content = new Border
+            {
+                Background = TextElement.GetForeground(this),
                 VerticalAlignment = VerticalAlignment.Stretch,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-                
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                OpacityMask = new ImageBrush(new Bitmap(_stream))
             };
-
-            if (ConfigurationIcon.Fill)
-            {
-                // Fill mode: use Foreground as Background and the bitmap as opacity mask
-                border.Background = TextElement.GetForeground(this);
-                border.OpacityMask = new ImageBrush(new Bitmap(_stream));
-            }
-            else
-            {
-                // Non-fill mode: place the image inside the rounded border
-                border.Child = new Image { Source = new Bitmap(_stream) };
-            }
-
-            Content = border;
         }
         catch (Exception)
         {

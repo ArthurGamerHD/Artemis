@@ -1,7 +1,10 @@
 using System;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using DryIoc;
+using ReactiveUI;
 using Serilog;
 
 namespace Artemis.UI.Shared.Routing;
@@ -86,7 +89,7 @@ internal class Navigation
             return;
         
         // Navigate on the screen
-        args.SegmentParameters = resolution.Parameters ?? [];
+        args.SegmentParameters = resolution.Parameters ?? Array.Empty<object>();
         try
         {
             await screen.InternalOnNavigating(args, _cts.Token);

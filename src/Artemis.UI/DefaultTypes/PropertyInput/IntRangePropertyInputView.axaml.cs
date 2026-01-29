@@ -1,6 +1,7 @@
 using System;
 using Artemis.UI.Shared.Controls;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.DefaultTypes.PropertyInput;
 

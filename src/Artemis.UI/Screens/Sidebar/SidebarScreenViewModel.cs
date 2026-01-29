@@ -17,7 +17,7 @@ public partial class SidebarScreenViewModel : ViewModelBase
         Path = path;
         RootPath = rootPath ?? path;
         DisplayName = displayName;
-        Screens = screens ?? [];
+        Screens = screens ?? new ObservableCollection<SidebarScreenViewModel>();
     }
 
     public MaterialIconKind Icon { get; }
@@ -47,10 +47,7 @@ public partial class SidebarScreenViewModel : ViewModelBase
     public void ExpandIfRequired(SidebarScreenViewModel selected)
     {
         if (selected == this)
-        {
-            IsExpanded = true;
             return;
-        }
 
         if (Screens.Contains(selected))
             IsExpanded = true;

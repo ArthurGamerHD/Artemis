@@ -1,4 +1,5 @@
 using Artemis.UI.Shared.Routing;
+using Artemis.WebClient.Workshop;
 
 namespace Artemis.UI.Screens.Workshop.Layout;
 

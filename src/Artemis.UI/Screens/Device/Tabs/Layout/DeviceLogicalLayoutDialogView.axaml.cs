@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 
 namespace Artemis.UI.Screens.Device.Layout;

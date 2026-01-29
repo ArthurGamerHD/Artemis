@@ -2,7 +2,6 @@
 using Artemis.Core;
 using Artemis.Core.Services;
 using Artemis.UI.Shared;
-using Artemis.WebClient.Workshop.Services;
 using PropertyChanged.SourceGenerator;
 
 namespace Artemis.UI.Screens.Root;
@@ -11,12 +10,12 @@ public partial class SplashViewModel : ViewModelBase
 {
     [Notify] private string _status;
 
-    public SplashViewModel(ICoreService coreService, IPluginManagementService pluginManagementService, IWorkshopService workshopService)
+    public SplashViewModel(ICoreService coreService, IPluginManagementService pluginManagementService)
     {
         CoreService = coreService;
         _status = "Initializing Core";
 
-        workshopService.MigratingBuildInPlugins += WorkshopServiceOnMigratingBuildInPlugins;
+        pluginManagementService.CopyingBuildInPlugins += OnPluginManagementServiceOnCopyingBuildInPluginsManagement;
         pluginManagementService.PluginLoading += OnPluginManagementServiceOnPluginManagementLoading;
         pluginManagementService.PluginLoaded += OnPluginManagementServiceOnPluginManagementLoaded;
         pluginManagementService.PluginEnabling += PluginManagementServiceOnPluginManagementEnabling;
@@ -26,11 +25,6 @@ public partial class SplashViewModel : ViewModelBase
     }
 
     public ICoreService CoreService { get; }
-
-    private void WorkshopServiceOnMigratingBuildInPlugins(object? sender, EventArgs args)
-    {
-        Status = "Migrating built-in plugins";
-    }
     
     private void OnPluginManagementServiceOnPluginManagementLoaded(object? sender, PluginEventArgs args)
     {
@@ -60,5 +54,10 @@ public partial class SplashViewModel : ViewModelBase
     private void PluginManagementServiceOnPluginFeatureEnabled(object? sender, PluginFeatureEventArgs e)
     {
         Status = "Initializing UI";
+    }
+
+    private void OnPluginManagementServiceOnCopyingBuildInPluginsManagement(object? sender, EventArgs args)
+    {
+        Status = "Updating built-in plugins";
     }
 }

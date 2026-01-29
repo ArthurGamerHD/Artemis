@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -47,7 +48,7 @@ public class DataModelPicker : TemplatedControl
     ///     A list of extra modules to show data models of.
     /// </summary>
     public static readonly StyledProperty<ObservableCollection<Module>?> ModulesProperty =
-        AvaloniaProperty.Register<DataModelPicker, ObservableCollection<Module>?>(nameof(Modules), []);
+        AvaloniaProperty.Register<DataModelPicker, ObservableCollection<Module>?>(nameof(Modules), new ObservableCollection<Module>());
 
     /// <summary>
     ///     The data model view model to show, if not provided one will be retrieved by the control.
@@ -59,7 +60,7 @@ public class DataModelPicker : TemplatedControl
     ///     A list of types to filter the selectable paths on.
     /// </summary>
     public static readonly StyledProperty<ObservableCollection<Type>?> FilterTypesProperty =
-        AvaloniaProperty.Register<DataModelPicker, ObservableCollection<Type>?>(nameof(FilterTypes), []);
+        AvaloniaProperty.Register<DataModelPicker, ObservableCollection<Type>?>(nameof(FilterTypes), new ObservableCollection<Type>());
 
     /// <summary>
     ///     Gets or sets a boolean indicating whether the picker is in event picker mode.
@@ -222,7 +223,7 @@ public class DataModelPicker : TemplatedControl
         if (DataModelUIService == null)
             return;
 
-        ChangeDataModel(DataModelUIService.GetPluginDataModelVisualization(Modules?.ToList() ?? [], true));
+        ChangeDataModel(DataModelUIService.GetPluginDataModelVisualization(Modules?.ToList() ?? new List<Module>(), true));
     }
 
     private void ChangeDataModel(DataModelPropertiesViewModel? dataModel)

@@ -31,8 +31,8 @@ public class Plugin : CorePropertyChanged, IDisposable
         Info.Plugin = this;
 
         _loadedFromStorage = loadedFromStorage;
-        _features = [];
-        _profilers = [];
+        _features = new List<PluginFeatureInfo>();
+        _profilers = new List<Profiler>();
 
         Features = new ReadOnlyCollection<PluginFeatureInfo>(_features);
         Profilers = new ReadOnlyCollection<Profiler>(_profilers);

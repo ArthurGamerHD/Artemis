@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Input;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
 
 namespace Artemis.UI.Screens.SurfaceEditor;
@@ -28,7 +29,7 @@ public partial class SurfaceDeviceView : ReactiveUserControl<SurfaceDeviceViewMo
 
             if (!ViewModel.IsSelected)
             {
-                ViewModel.SurfaceEditorViewModel.UpdateSelection([ViewModel], false, false);
+                ViewModel.SurfaceEditorViewModel.UpdateSelection(new List<SurfaceDeviceViewModel> {ViewModel}, false, false);
                 ViewModel.SurfaceEditorViewModel.FinishSelection();
             }
 
@@ -54,7 +55,7 @@ public partial class SurfaceDeviceView : ReactiveUserControl<SurfaceDeviceViewMo
         }
         else
         {
-            ViewModel.SurfaceEditorViewModel.UpdateSelection([ViewModel], e.KeyModifiers.HasFlag(KeyModifiers.Shift), e.KeyModifiers.HasFlag(KeyModifiers.Control));
+            ViewModel.SurfaceEditorViewModel.UpdateSelection(new List<SurfaceDeviceViewModel> {ViewModel}, e.KeyModifiers.HasFlag(KeyModifiers.Shift), e.KeyModifiers.HasFlag(KeyModifiers.Control));
             ViewModel.SurfaceEditorViewModel.FinishSelection();
         }
 

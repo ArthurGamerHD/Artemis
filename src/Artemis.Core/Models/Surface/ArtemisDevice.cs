@@ -43,9 +43,9 @@ public class ArtemisDevice : CorePropertyChanged
 
         LedIds = new ReadOnlyDictionary<LedId, ArtemisLed>(new Dictionary<LedId, ArtemisLed>());
         Leds = new ReadOnlyCollection<ArtemisLed>(new List<ArtemisLed>());
-        InputIdentifiers = [];
+        InputIdentifiers = new List<ArtemisDeviceInputIdentifier>();
         InputMappings = new Dictionary<ArtemisLed, ArtemisLed>();
-        Categories = [];
+        Categories = new HashSet<DeviceCategory>();
         LayoutSelection = new LayoutSelection {Type = DefaultLayoutProvider.LAYOUT_TYPE};
 
         RgbDevice.ColorCorrections.Clear();
@@ -72,9 +72,9 @@ public class ArtemisDevice : CorePropertyChanged
 
         LedIds = new ReadOnlyDictionary<LedId, ArtemisLed>(new Dictionary<LedId, ArtemisLed>());
         Leds = new ReadOnlyCollection<ArtemisLed>(new List<ArtemisLed>());
-        InputIdentifiers = [];
+        InputIdentifiers = new List<ArtemisDeviceInputIdentifier>();
         InputMappings = new Dictionary<ArtemisLed, ArtemisLed>();
-        Categories = [];
+        Categories = new HashSet<DeviceCategory>();
         LayoutSelection = new LayoutSelection {Type = DefaultLayoutProvider.LAYOUT_TYPE};
 
         foreach (DeviceInputIdentifierEntity identifierEntity in DeviceEntity.InputIdentifiers)

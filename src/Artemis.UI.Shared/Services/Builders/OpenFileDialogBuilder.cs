@@ -61,7 +61,7 @@ public class OpenFileDialogBuilder
         FileDialogFilterBuilder builder = new();
         configure(builder);
 
-        _fileTypeFilters ??= [];
+        _fileTypeFilters ??= new List<FilePickerFileType>();
         _fileTypeFilters.Add(builder.Build());
         _options.FileTypeFilter = _fileTypeFilters;
 

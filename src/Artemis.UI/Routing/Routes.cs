@@ -15,6 +15,7 @@ using Artemis.UI.Screens.Workshop.Library.Tabs;
 using Artemis.UI.Screens.Workshop.Plugins;
 using Artemis.UI.Screens.Workshop.Profile;
 using Artemis.UI.Shared.Routing;
+using PluginDetailsViewModel = Artemis.UI.Screens.Workshop.Plugins.PluginDetailsViewModel;
 
 namespace Artemis.UI.Routing
 {
@@ -50,8 +51,7 @@ namespace Artemis.UI.Routing
                     new RouteRegistration<SubmissionsTabViewModel>("submissions"),
                     new RouteRegistration<SubmissionManagementViewModel>("submissions/{entryId:long}", [
                         new RouteRegistration<SubmissionReleaseViewModel>("releases/{releaseId:long}")
-                    ]),
-                    new RouteRegistration<RecentlyUpdatedViewModel>("recently-updated")
+                    ])
                 ])
             ]),
             new RouteRegistration<SurfaceEditorViewModel>("surface-editor"),
@@ -65,10 +65,7 @@ namespace Artemis.UI.Routing
                 new RouteRegistration<AccountTabViewModel>("account"),
                 new RouteRegistration<AboutTabViewModel>("about")
             ]),
-            new RouteRegistration<ProfileViewModel>("profile/{profileConfigurationId:guid}", [
-                new RouteRegistration<ProfileEditorViewModel>("editor"),
-                new RouteRegistration<WorkshopProfileViewModel>("workshop")
-            ]),
+            new RouteRegistration<ProfileEditorViewModel>("profile-editor/{profileConfigurationId:guid}")
         ];
     }
 }

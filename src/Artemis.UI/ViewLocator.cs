@@ -2,9 +2,10 @@ using System;
 using System.Diagnostics;
 using Artemis.Core;
 using Artemis.UI.Exceptions;
+using Artemis.UI.Screens.Root;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using ReactiveUI.Avalonia;
+using Avalonia.ReactiveUI;
 using ReactiveUI;
 
 namespace Artemis.UI;

@@ -25,7 +25,7 @@ internal class RouteResolution
             return AsFailure(path);
 
         // Ensure self is a match
-        List<object> parameters = [];
+        List<object> parameters = new();
         int currentSegment = 0;
         foreach (RouteSegment routeSegment in registration.Route.Segments)
         {
@@ -95,7 +95,7 @@ internal class RouteResolution
 
     public object[] GetAllParameters()
     {
-        List<object> result = [];
+        List<object> result = new();
         if (Parameters != null)
             result.AddRange(Parameters);
         object[]? childParameters = Child?.GetAllParameters();

@@ -1,7 +1,8 @@
 using System;
-using System.Reactive.Disposables.Fluent;
+using System.Reactive.Disposables;
 using Artemis.UI.Shared;
 using Avalonia;
+using Avalonia.Markup.Xaml;
 using ReactiveUI;
 
 namespace Artemis.UI.Screens.Sidebar;

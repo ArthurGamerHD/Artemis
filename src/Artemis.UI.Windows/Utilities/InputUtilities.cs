@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using Artemis.Core.Services;
 using Microsoft.Win32;
 

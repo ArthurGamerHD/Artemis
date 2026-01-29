@@ -1,7 +1,8 @@
 using Artemis.Core.LayerBrushes;
 using Avalonia;
 using Avalonia.Input;
-using ReactiveUI.Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
 
 namespace Artemis.UI.Screens.ProfileEditor.Properties.Tree.Dialogs;
 

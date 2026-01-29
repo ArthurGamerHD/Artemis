@@ -151,19 +151,19 @@ public static class ColorQuantizer
     {
         SKColor[] colors = QuantizeSplit(bitmap.Pixels, 8);
         ColorSwatch swatch = FindAllColorVariations(colors);
-        SKColor[] swatchArray =
-        [
+        SKColor[] swatchArray = new SKColor[]
+        {
             swatch.Muted,
             swatch.Vibrant,
             swatch.DarkMuted,
             swatch.DarkVibrant,
             swatch.LightMuted,
             swatch.LightVibrant
-        ];
+        };
 
         ColorSorter.Sort(swatchArray, SKColors.Black);
 
-        ColorGradient gradient = [];
+        ColorGradient gradient = new();
 
         for (int i = 0; i < swatchArray.Length; i++)
             gradient.Add(new ColorGradientStop(swatchArray[i], (float)i / (swatchArray.Length - 1)));
