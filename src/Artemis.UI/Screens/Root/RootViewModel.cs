@@ -19,6 +19,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using ReactiveUI;
 using Serilog;
@@ -27,6 +28,10 @@ namespace Artemis.UI.Screens.Root;
 
 public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProvider
 {
+    const string DEFAULT_ICON = "avares://Artemis.UI/Assets/Images/Logo/application.ico";
+    const string DARK_ICON = "avares://Artemis.UI/Assets/Images/Logo/application-monochrome-dark.ico";
+    const string LIGHT_ICON = "avares://Artemis.UI/Assets/Images/Logo/application-monochrome.ico";
+    
     private readonly ICoreService _coreService;
     private readonly IDebugService _debugService;
     private readonly DefaultTitleBarViewModel _defaultTitleBarViewModel;
@@ -88,6 +93,7 @@ public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProv
         }
 
         trayIconSetting.SettingChanged += (_, _) => this.RaisePropertyChanged(nameof(TrayIcon));
+        Application.Current.PlatformSettings?.ColorValuesChanged += (_,_) => this.RaisePropertyChanged(nameof(TrayIcon));
 
         Task.Run(() =>
         {
@@ -205,16 +211,21 @@ public class RootViewModel : RoutableHostScreen<RoutableScreen>, IMainWindowProv
     {
         get
         {
-            string uri = "avares://Artemis.UI/Assets/Images/Logo/application.ico";
+            string uri = DEFAULT_ICON;
             switch (trayIconSetting.Value)
             {
                 case TrayIconEnum.Default:
                     break;
                 case TrayIconEnum.Monochrome:
-                    uri = "avares://Artemis.UI/Assets/Images/Logo/application-monochrome.ico";
+                    uri = DARK_ICON;
                     break;
                 case TrayIconEnum.MonochromeDark:
-                    uri = "avares://Artemis.UI/Assets/Images/Logo/application-monochrome-dark.ico";
+                    uri = LIGHT_ICON;
+                    break;
+                case TrayIconEnum.MonochromeAuto:
+                    if (Application.Current is {} application && application.PlatformSettings?.GetColorValues() is { } colorValues ) 
+                        uri = colorValues.ThemeVariant == PlatformThemeVariant.Dark ? 
+                            LIGHT_ICON : DARK_ICON;
                     break;
                 default:
                     _logger.Error("{icon} is not a valid Icon, fall-backing to default icon", trayIconSetting.Value);

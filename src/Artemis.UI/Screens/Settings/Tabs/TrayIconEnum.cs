@@ -4,5 +4,6 @@ public enum TrayIconEnum
 {
     Default,
     Monochrome,
-    MonochromeDark
+    MonochromeDark,
+    MonochromeAuto
 };
